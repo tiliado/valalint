@@ -1,6 +1,7 @@
 public class Linter.WhitespaceRule: Rule {
     public bool space_before_bracket {get; set; default = false;}
     public bool space_after_comma {get; set; default = false;}
+    public bool no_space_before_comma {get; set; default = false;}
     public bool no_trailing_whitespace {get; set; default = false;}
 
     public WhitespaceRule() {
@@ -9,6 +10,7 @@ public class Linter.WhitespaceRule: Rule {
 
     public override void setup(Config config) {
         space_after_comma = config.get_bool_or(Config.CHECKS, "space_after_comma");
+        no_space_before_comma = config.get_bool_or(Config.CHECKS, "no_space_before_comma");
         space_before_bracket = config.get_bool_or(Config.CHECKS, "space_before_bracket");
         no_trailing_whitespace = config.get_bool_or(Config.CHECKS, "no_trailing_whitespace");
     }
@@ -40,6 +42,15 @@ public class Linter.WhitespaceRule: Rule {
                             token.end,
                             Vala.SourceLocation(pos, token.end.line, token.end.column + (int)(pos - token.end.pos)),
                             "There must be a single space after a comma but `%s` found.", sep);
+                    }
+                }
+                if (no_space_before_comma) {
+                    Token? prev_token = null;
+                    if (tokens.peek(-1, out prev_token)
+                    && Utils.Buffer.substring(prev_token.end.pos, token.begin.pos) != null) {
+                        error(
+                            prev_token.begin, token.end,
+                            "There must be no space between %s and `,`.", prev_token.type.to_string());
                     }
                 }
                 break;
