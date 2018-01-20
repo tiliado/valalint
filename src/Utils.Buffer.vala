@@ -13,6 +13,19 @@ namespace Linter.Utils.Buffer {
         return pos;
     }
 
+    public char* skip_whitespace_stop_at_eol(char* pos) {
+        for (char* i = pos; i != null; i++) {
+            switch (*i) {
+                case ' ':
+                case '\t':
+                    break;
+                default:
+                    return i;
+            }
+        }
+        return pos;
+    }
+
     public string? substring_to_eol(char* pos) {
         unowned string? str = (string?) pos;
         var len = move_to_eol(pos) - pos;
