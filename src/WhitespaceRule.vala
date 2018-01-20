@@ -2,6 +2,7 @@ public class Linter.WhitespaceRule: Rule {
     public int space_indent {get; set; default = 0;}
     public bool space_before_bracket {get; set; default = false;}
     public bool space_after_comma {get; set; default = false;}
+    public bool space_after_keyword {get; set; default = false;}
     public bool no_space_before_comma {get; set; default = false;}
     public bool no_trailing_whitespace {get; set; default = false;}
 
@@ -11,6 +12,7 @@ public class Linter.WhitespaceRule: Rule {
 
     public override void setup(Config config) {
         space_after_comma = config.get_bool_or(Config.CHECKS, "space_after_comma");
+        space_after_keyword = config.get_bool_or(Config.CHECKS, "space_after_keyword");
         no_space_before_comma = config.get_bool_or(Config.CHECKS, "no_space_before_comma");
         space_before_bracket = config.get_bool_or(Config.CHECKS, "space_before_bracket");
         no_trailing_whitespace = config.get_bool_or(Config.CHECKS, "no_trailing_whitespace");
@@ -35,16 +37,7 @@ public class Linter.WhitespaceRule: Rule {
                 break;
             case Vala.TokenType.COMMA:
                 if (space_after_comma) {
-                    var pos = Utils.Buffer.skip_whitespace_stop_at_eol(token.end.pos);
-                    var sep = Utils.Buffer.substring(token.end.pos, pos);
-                    bool doesnt_have_space = sep != " ";
-                    bool isnt_at_eol = sep == null && pos != null && *pos != '\n';
-                    if (doesnt_have_space && isnt_at_eol) {
-                        error(
-                            token.end,
-                            Vala.SourceLocation(pos, token.end.line, token.end.column + (int)(pos - token.end.pos)),
-                            "There must be a single space after a comma but `%s` found.", sep);
-                    }
+                    lint_space_after_token(tokens, token, true);
                 }
                 if (no_space_before_comma) {
                     Token? prev_token = null;
@@ -56,6 +49,76 @@ public class Linter.WhitespaceRule: Rule {
                     }
                 }
                 break;
+            case Vala.TokenType.ABSTRACT:
+            case Vala.TokenType.ASYNC:
+            case Vala.TokenType.AS:
+            case Vala.TokenType.CASE:
+            case Vala.TokenType.CLASS:
+            case Vala.TokenType.CONST:
+            case Vala.TokenType.DELEGATE:
+            case Vala.TokenType.DO:
+            case Vala.TokenType.DYNAMIC:
+            case Vala.TokenType.ELSE:
+            case Vala.TokenType.ENUM:
+            case Vala.TokenType.ERRORDOMAIN:
+            case Vala.TokenType.EXTERN:
+            case Vala.TokenType.FINALLY:
+            case Vala.TokenType.FOR:
+            case Vala.TokenType.IF:
+            case Vala.TokenType.IN:
+            case Vala.TokenType.INTERFACE:
+            case Vala.TokenType.INTERNAL:
+            case Vala.TokenType.IS:
+            case Vala.TokenType.LOCK:
+            case Vala.TokenType.NEW:
+            case Vala.TokenType.NAMESPACE:
+            case Vala.TokenType.OUT:
+            case Vala.TokenType.OVERRIDE:
+            case Vala.TokenType.OWNED:
+            case Vala.TokenType.PRIVATE:
+            case Vala.TokenType.PROTECTED:
+            case Vala.TokenType.PUBLIC:
+            case Vala.TokenType.REF:
+            case Vala.TokenType.RETURN:
+            case Vala.TokenType.STATIC:
+            case Vala.TokenType.STRUCT:
+            case Vala.TokenType.TRY:
+            case Vala.TokenType.UNOWNED:
+            case Vala.TokenType.VAR:
+            case Vala.TokenType.VIRTUAL:
+            case Vala.TokenType.WHILE:
+            case Vala.TokenType.WEAK:
+            case Vala.TokenType.YIELD:
+                if (space_after_keyword) {
+                    lint_space_after_token(tokens, token);
+                }
+                break;
+            }
+        }
+    }
+
+    private void lint_space_after_token(TokenList tokens, Token token, bool eol_ok=false) {
+        var pos = Utils.Buffer.skip_whitespace_stop_at_eol(token.end.pos);
+        var sep = Utils.Buffer.substring(token.end.pos, pos);
+        bool doesnt_have_space = sep != " ";
+        bool isnt_at_eol = pos != null && *pos != '\n';
+        if (doesnt_have_space && (!eol_ok || isnt_at_eol)) {
+            var is_ok = false;
+            // (owned) cast
+            is_ok |= token.type == Vala.TokenType.OWNED && *(token.begin.pos - 1) == '(' && *(token.end.pos) == ')';
+            if (!is_ok) {
+                var location = Vala.SourceLocation(pos, token.end.line, token.end.column + (int)(pos - token.end.pos));
+                Token? next_token = null;
+                if (tokens.peek(1, out next_token)) {
+                    error(
+                        token.end, location,
+                        "There must be a single space between %s and %s.",
+                        token.type.to_string(), next_token.type.to_string());
+                } else {
+                    error(
+                        token.end, location,
+                        "There must be a single space after %s.", token.type.to_string());
+                }
             }
         }
     }
