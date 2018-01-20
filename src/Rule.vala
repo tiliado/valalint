@@ -6,7 +6,7 @@ public class Linter.Rule : Vala.CodeVisitor {
     public Rule() {
     }
 
-    public virtual void setup(string param, string? value) {
+    public virtual void setup(Config config) {
     }
 
     public void apply(Vala.SourceFile file, TokenList tokens, Blocks blocks) {

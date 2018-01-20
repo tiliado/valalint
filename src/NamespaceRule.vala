@@ -6,15 +6,9 @@ public class Linter.NamespaceRule : Rule {
         base();
     }
 
-    public override void setup(string param, string? value) {
-        switch (param) {
-        case "end_of_namespace_comments":
-            end_of_namespace_comments = true;
-            break;
-        case "no_nested_namespaces":
-            no_nested_namespaces = true;
-            break;
-        }
+    public override void setup(Config config) {
+        end_of_namespace_comments = config.get_bool_or(Config.CHECKS, "end_of_namespace_comments");
+        no_nested_namespaces = config.get_bool_or(Config.CHECKS, "no_nested_namespaces");
     }
 
     public override void visit_tokens(TokenList tokens) {

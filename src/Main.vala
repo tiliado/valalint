@@ -3,6 +3,7 @@ class Linter.Main {
 
     static string basedir;
     static string directory;
+    static string config_file;
     static bool version;
     static bool api_version;
     [CCode (array_length = false, array_null_terminated = true)]
@@ -37,6 +38,9 @@ class Linter.Main {
         {
             "check", 'c', 0, OptionArg.STRING_ARRAY, ref checks,
             "What linter checks to enable", "CHECK_NAME..."
+        }, {
+            "config", 'C', 0, OptionArg.FILENAME, ref config_file,
+            "Configuration file", "PATH"
         }, {
             "vapidir", 0, 0, OptionArg.FILENAME_ARRAY, ref vapi_directories,
             "Look for package bindings in DIRECTORY", "DIRECTORY..."
@@ -133,6 +137,35 @@ class Linter.Main {
         context.report.set_verbose_errors (!quiet_mode);
         context.verbose_mode = verbose_mode;
 
+        var config = new Config();
+        try {
+            config.load_from_file(config_file ?? ".valalint.conf", 0);
+        } catch (GLib.Error e) {
+            if (config_file != null || !(e is GLib.FileError.NOENT)) {
+                stderr.printf("Cannot load config file '%s'. %s.\n", config_file, e.message);
+                return 1;
+            }
+        }
+        foreach (unowned string check in checks) {
+            string[] parts = check.split("=", 2);
+            assert(parts.length < 3);
+            string key = parts[0].strip().replace("-", "_");
+            if (key != "") {
+                var value = parts.length == 2 ? parts[1].strip() : null;
+                config.set_string(Config.CHECKS, key, value ?? "true");
+            }
+        }
+        if (!config.has_group(Config.CHECKS)) {
+            if (config_file != null) {
+                stderr.printf(
+                    "No checks are enabled. Use --check or add some checks to the config file (section '%s').\n",
+                    Config.CHECKS);
+            } else {
+                stderr.printf("No checks are enabled. Use --config or --check to add some checks.\n");
+            }
+            return 1;
+        }
+
         if (basedir == null) {
             context.basedir = Vala.CodeContext.realpath (".");
         } else {
@@ -210,26 +243,8 @@ class Linter.Main {
             return quit ();
         }
 
-        var params = new Vala.HashMap<string?, string?>(str_hash, str_equal, str_equal);
-        if (checks == null) {
-            params["end_of_namespace_comments"] = null;
-            params["space_before_bracket"] = null;
-            params["no_nested_namespaces"] = null;
-            params["no_trailing_whitespace"] = null;
-        } else {
-            foreach (unowned string check in checks) {
-                string[] parts = check.split("=", 2);
-                assert(parts.length < 3);
-                string key = parts[0].strip().replace("-", "_");
-                if (key != "") {
-                    var value = parts.length == 2 ? parts[1].strip() : null;
-                    params[key] = value == "" ? null : value;
-                }
-            }
-        }
-
         Rule[] rules = {new WhitespaceRule(), new NamespaceRule()};
-        var linter = new Linter((owned) rules, params);
+        var linter = new Linter((owned) rules, config);
         linter.lint(context);
         return quit ();
     }

@@ -6,15 +6,9 @@ public class Linter.WhitespaceRule: Rule {
         base();
     }
 
-    public override void setup(string param, string? value) {
-        switch (param) {
-        case "space_before_bracket":
-            space_before_bracket = true;
-            break;
-        case "no_trailing_whitespace":
-            no_trailing_whitespace = true;
-            break;
-        }
+    public override void setup(Config config) {
+        space_before_bracket = config.get_bool_or(Config.CHECKS, "space_before_bracket");
+        no_trailing_whitespace = config.get_bool_or(Config.CHECKS, "no_trailing_whitespace");
     }
 
     public override void visit_tokens(TokenList tokens) {

@@ -2,20 +2,17 @@ public class Linter.Linter {
     public Vala.CodeContext? context { get; set; }
     public Vala.SourceFile current_source_file { get; set; }
     private Rule[] rules;
-    private Vala.HashMap<string, string?> params;
+    private Config config;
 
-    public Linter(owned Rule[] rules, Vala.HashMap<string, string?> params) {
+    public Linter(owned Rule[] rules, Config config) {
         this.rules = (owned) rules;
-        this.params = params;
+        this.config = config;
     }
 
     public void lint(Vala.CodeContext context) {
         this.context = context;
-        var iter = params.map_iterator();
-        while(iter.next()) {
-            foreach (var rule in rules) {
-                rule.setup(iter.get_key(), iter.get_value());
-            }
+        foreach (var rule in rules) {
+            rule.setup(config);
         }
 
         Vala.List<Vala.SourceFile> files = context.get_source_files();
