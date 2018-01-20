@@ -32,7 +32,7 @@ public class Linter.Linter {
                     file.remove_node(node);
                 }
                 foreach (var rule in rules) {
-                   rule.apply(file, tokens.copy(true), blocks);
+                    rule.apply(file, tokens.copy(true), blocks);
                 }
             }
         }

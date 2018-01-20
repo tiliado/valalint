@@ -18,7 +18,7 @@ class Linter.Main {
     static string[] packages;
     static string target_glib;
     [CCode (array_length = false, array_null_terminated = true)]
-	static string[] checks;
+    static string[] checks;
     static bool disable_assert;
     static bool experimental;
     static bool experimental_non_null;

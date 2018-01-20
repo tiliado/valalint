@@ -86,6 +86,14 @@ namespace Linter.Utils.Buffer {
         return size;
     }
 
-
+    public char* index_of_char(char* pos, char c) {
+        while (pos != null && *pos != '\0') {
+            if (*pos == c) {
+                return pos;
+            }
+            pos++;
+        }
+        return null;
+    }
 
 } // namespace Linter.Utils.Buffer
