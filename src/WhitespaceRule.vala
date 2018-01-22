@@ -5,6 +5,7 @@ public class Linter.WhitespaceRule: Rule {
     public bool space_after_keyword {get; set; default = false;}
     public bool no_space_before_comma {get; set; default = false;}
     public bool no_trailing_whitespace {get; set; default = false;}
+    public bool method_call_no_space {get; set; default = false;}
 
     public WhitespaceRule() {
         base();
@@ -16,6 +17,7 @@ public class Linter.WhitespaceRule: Rule {
         no_space_before_comma = config.get_bool_or(Config.CHECKS, "no_space_before_comma");
         space_before_bracket = config.get_bool_or(Config.CHECKS, "space_before_bracket");
         no_trailing_whitespace = config.get_bool_or(Config.CHECKS, "no_trailing_whitespace");
+        method_call_no_space = config.get_bool_or(Config.CHECKS, "method_call_no_space");
         space_indent = config.get_int_or(Config.CHECKS, "space_indent");
     }
 
@@ -159,6 +161,22 @@ public class Linter.WhitespaceRule: Rule {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public override void lint_method_call (Vala.MethodCall expr) {
+        Vala.SourceReference source_ref = expr.source_reference;
+        if (method_call_no_space) {
+            char* paren = Utils.Buffer.index_of_char(source_ref.begin.pos, '(');
+            char* whitespace = Utils.Buffer.skip_whitespace_backwards(paren);
+            if (paren - whitespace > 0) {
+                int col1 = source_ref.begin.column + (int)(whitespace - source_ref.begin.pos);
+                int col2 = source_ref.begin.column + (int)(paren - source_ref.begin.pos);
+                error(
+                    Vala.SourceLocation(whitespace, source_ref.begin.line, col1),
+                    Vala.SourceLocation(paren, source_ref.begin.line, col2),
+                    "No whitespace in method call allowed.");
             }
         }
     }

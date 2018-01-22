@@ -125,11 +125,11 @@ class Linter.Main {
         Vala.CodeContext.push(context);
 
         if (disable_diagnostic_colors == false) {
-            unowned string env_colors = Environment.get_variable ("VALA_COLORS");
+            unowned string env_colors = Environment.get_variable("VALA_COLORS");
             if (env_colors != null) {
-                context.report.set_colors (env_colors);
+                context.report.set_colors(env_colors);
             } else {
-                context.report.set_colors (DEFAULT_COLORS);
+                context.report.set_colors(DEFAULT_COLORS);
             }
         }
 
@@ -138,7 +138,7 @@ class Linter.Main {
         context.experimental_non_null = experimental_non_null;
         context.gobject_tracing = gobject_tracing;
         context.report.enable_warnings = !disable_warnings;
-        context.report.set_verbose_errors (!quiet_mode);
+        context.report.set_verbose_errors(!quiet_mode);
         context.verbose_mode = verbose_mode;
 
         var config = new Config();
@@ -171,12 +171,12 @@ class Linter.Main {
         }
 
         if (basedir == null) {
-            context.basedir = Vala.CodeContext.realpath (".");
+            context.basedir = Vala.CodeContext.realpath(".");
         } else {
-            context.basedir = Vala.CodeContext.realpath (basedir);
+            context.basedir = Vala.CodeContext.realpath(basedir);
         }
         if (directory != null) {
-            context.directory = Vala.CodeContext.realpath (directory);
+            context.directory = Vala.CodeContext.realpath(directory);
         } else {
             context.directory = context.basedir;
         }
@@ -184,93 +184,93 @@ class Linter.Main {
         context.gir_directories = gir_directories;
         context.metadata_directories = metadata_directories;
         context.profile = Vala.Profile.GOBJECT;
-        context.add_define ("GOBJECT");
+        context.add_define("GOBJECT");
 
         if (defines != null) {
             foreach (string define in defines) {
-                context.add_define (define);
+                context.add_define(define);
             }
         }
 
         for (int i = 2; i <= 36; i += 2) {
-            context.add_define ("VALA_0_%d".printf (i));
+            context.add_define("VALA_0_%d".printf(i));
         }
 
         int glib_major = 2;
         int glib_minor = 32;
-        if (target_glib != null && target_glib.scanf ("%d.%d", out glib_major, out glib_minor) != 2) {
-            Vala.Report.error (null, "Invalid format for --target-glib");
+        if (target_glib != null && target_glib.scanf("%d.%d", out glib_major, out glib_minor) != 2) {
+            Vala.Report.error(null, "Invalid format for --target-glib");
         }
 
         context.target_glib_major = glib_major;
         context.target_glib_minor = glib_minor;
         if (context.target_glib_major != 2) {
-            Vala.Report.error (null, "This version of valac only supports GLib 2");
+            Vala.Report.error(null, "This version of valac only supports GLib 2");
         }
 
         for (int i = 16; i <= glib_minor; i += 2) {
-            context.add_define ("GLIB_2_%d".printf (i));
+            context.add_define("GLIB_2_%d".printf(i));
         }
 
         /* default packages */
-        context.add_external_package ("glib-2.0");
-        context.add_external_package ("gobject-2.0");
+        context.add_external_package("glib-2.0");
+        context.add_external_package("gobject-2.0");
 
         if (packages != null) {
             foreach (string package in packages) {
-                context.add_external_package (package);
+                context.add_external_package(package);
             }
             packages = null;
         }
 
-        if (context.report.get_errors () > 0 || (fatal_warnings && context.report.get_warnings () > 0)) {
-            return quit ();
+        if (context.report.get_errors() > 0 || (fatal_warnings && context.report.get_warnings() > 0)) {
+            return quit();
         }
 
         foreach (string source in sources) {
-            context.add_source_filename (source, run_output, true);
+            context.add_source_filename(source, run_output, true);
         }
 
-        if (context.report.get_errors () > 0 || (fatal_warnings && context.report.get_warnings () > 0)) {
-            return quit ();
+        if (context.report.get_errors() > 0 || (fatal_warnings && context.report.get_warnings() > 0)) {
+            return quit();
         }
 
         var parser = new Vala.Parser ();
-        parser.parse (context);
-        if (context.report.get_errors () > 0 || (fatal_warnings && context.report.get_warnings () > 0)) {
-            return quit ();
+        parser.parse(context);
+        if (context.report.get_errors() > 0 || (fatal_warnings && context.report.get_warnings() > 0)) {
+            return quit();
         }
 
         Rule[] rules = {new WhitespaceRule(), new NamespaceRule()};
         var linter = new Linter((owned) rules, config);
         linter.lint(context, new CodeVisitor(dump_tree));
-        return quit ();
+        return quit();
     }
 
 
     static int main (string[] args) {
-        Intl.setlocale (LocaleCategory.ALL, ""); // initialize locale
+        Intl.setlocale(LocaleCategory.ALL, ""); // initialize locale
         try {
             var opt_context = new OptionContext ("- Vala Linter");
-            opt_context.set_help_enabled (true);
-            opt_context.add_main_entries (options, null);
-            opt_context.parse (ref args);
+            opt_context.set_help_enabled(true);
+            opt_context.add_main_entries(options, null);
+            opt_context.parse(ref args);
         } catch (OptionError e) {
-            stdout.printf ("%s\n", e.message);
-            stdout.printf ("Run '%s --help' to see a full list of available command line options.\n", args[0]);
+            stdout.printf("%s\n", e.message);
+            stdout.printf("Run '%s --help' to see a full list of available command line options.\n", args[0]);
             return 1;
         }
 
         if (version) {
-            stdout.printf ("Vala %s\n", "VERSION");
+            stdout.printf("Vala %s\n", "VERSION");
             return 0;
         } else if (api_version) {
-            stdout.printf ("%s\n", "API_VERSION");
+            stdout.printf("%s\n", "API_VERSION");
             return 0;
         }
 
         if (sources == null) {
-            stderr.printf ("No source file specified.\n");
+            stderr.printf("No source file specified.\n");
             return 1;
         }
 

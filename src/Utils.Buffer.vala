@@ -26,6 +26,22 @@ namespace Linter.Utils.Buffer {
         return pos;
     }
 
+    public char* skip_whitespace_backwards(char* pos) {
+        if (pos == null) {
+            return pos;
+        }
+        for (char* i = pos - 1; i != null; i--) {
+            switch (*i) {
+                case ' ':
+                case '\t':
+                    break;
+                default:
+                    return i + 1;
+            }
+        }
+        return pos;
+    }
+
     public string? substring_to_eol(char* pos) {
         unowned string? str = (string?) pos;
         var len = move_to_eol(pos) - pos;

@@ -702,6 +702,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_method_call (Vala.MethodCall expr) {
         open("expr: call");
+        rule.lint_method_call(expr);
         expr.accept_children(this);
         close();
     }
