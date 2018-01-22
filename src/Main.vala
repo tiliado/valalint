@@ -241,12 +241,6 @@ class Linter.Main {
             return quit ();
         }
 
-        context.check ();
-
-        if (context.report.get_errors () > 0 || (fatal_warnings && context.report.get_warnings () > 0)) {
-            return quit ();
-        }
-
         Rule[] rules = {new WhitespaceRule(), new NamespaceRule()};
         var linter = new Linter((owned) rules, config);
         linter.lint(context, new CodeVisitor(dump_tree));
