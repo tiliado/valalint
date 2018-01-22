@@ -49,7 +49,7 @@ public class Linter.TokenList {
     }
 
     public bool peek(int step, out Token? token) {
-        var pos = this.pos + step - 1;
+        int pos = this.pos + step - 1;
         if (0 <= pos < size) {
             token = tokens[pos];
             return true;

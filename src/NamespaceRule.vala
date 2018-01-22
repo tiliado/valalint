@@ -28,7 +28,7 @@ public class Linter.NamespaceRule : Rule {
                     ns_ref.close_end = token.end;
                     lint_namespace(ns_ref);
                     ns_ref = null;
-                    var size = namespaces.size;
+                    int size = namespaces.size;
                     if (size > 0) {
                         ns_ref = namespaces[size - 1];
                         namespaces.remove_at(size - 1);
@@ -36,8 +36,8 @@ public class Linter.NamespaceRule : Rule {
                 }
                 break;
             case Vala.TokenType.NAMESPACE:
-                var ns_name = "";
-                var ns_token = token;
+                string ns_name = "";
+                Token? ns_token = token;
                 while (ns_name != null && tokens.next(out token)) {
                     switch (token.type) {
                     case Vala.TokenType.IDENTIFIER:
@@ -70,9 +70,9 @@ public class Linter.NamespaceRule : Rule {
                 "Nesting of namespaces not allowed. Use `namespace %s {`.", ns_ref.full_name());
         }
         if (end_of_namespace_comments) {
-            var ns_end_text = " // namespace " + ns_ref.name;
+            string ns_end_text = " // namespace " + ns_ref.name;
             if (Utils.Buffer.substring_to_eol(ns_ref.close_end.pos) != ns_end_text) {
-                var eol = Utils.Buffer.move_to_eol(ns_ref.close_end.pos);
+                char* eol = Utils.Buffer.move_to_eol(ns_ref.close_end.pos);
                 int column = ns_ref.close_end.column + (int) (eol - ns_ref.close_end.pos);
                 error(
                     ns_ref.close_end,

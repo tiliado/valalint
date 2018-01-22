@@ -155,7 +155,7 @@ class Linter.Main {
             assert(parts.length < 3);
             string key = parts[0].strip().replace("-", "_");
             if (key != "") {
-                var value = parts.length == 2 ? parts[1].strip() : null;
+                string? value = parts.length == 2 ? parts[1].strip() : null;
                 config.set_string(Config.CHECKS, key, value ?? "true");
             }
         }
@@ -241,7 +241,7 @@ class Linter.Main {
             return quit();
         }
 
-        Rule[] rules = {new WhitespaceRule(), new NamespaceRule()};
+        Rule[] rules = {new WhitespaceRule(), new NamespaceRule(), new VariableRule()};
         var linter = new Linter((owned) rules, config);
         linter.lint(context, new CodeVisitor(dump_tree));
         return quit();

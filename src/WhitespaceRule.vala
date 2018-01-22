@@ -199,17 +199,17 @@ public class Linter.WhitespaceRule: Rule {
     }
 
     private void lint_space_after_token(TokenList tokens, Token token, bool eol_ok=false) {
-        var pos = Utils.Buffer.skip_whitespace_stop_at_eol(token.end.pos);
-        var sep = Utils.Buffer.substring(token.end.pos, pos);
+        char* pos = Utils.Buffer.skip_whitespace_stop_at_eol(token.end.pos);
+        string? sep = Utils.Buffer.substring(token.end.pos, pos);
         bool doesnt_have_space = sep != " ";
         bool isnt_at_eol = pos != null && *pos != '\n';
         if (doesnt_have_space && (!eol_ok || isnt_at_eol)) {
-            var is_ok = false;
+            bool is_ok = false;
             // (owned) cast
             is_ok |= token.type == Vala.TokenType.OWNED && *(token.begin.pos - 1) == '(' && *(token.end.pos) == ')';
             is_ok |= token.type == Vala.TokenType.RETURN && *(token.end.pos) == ';';
             if (!is_ok) {
-                var location = Vala.SourceLocation(pos, token.end.line, token.end.column + (int)(pos - token.end.pos));
+                Vala.SourceLocation location = {pos, token.end.line, token.end.column + (int)(pos - token.end.pos)};
                 Token? next_token = null;
                 if (tokens.peek(1, out next_token)) {
                     error(
@@ -234,7 +234,7 @@ public class Linter.WhitespaceRule: Rule {
                 char* end;
                 if (Utils.Buffer.has_trailing_whitespace(pos, out start, out end)) {
                     var col1 = (int) (start - pos + 1);
-                    var col2 = col1 + Utils.Buffer.expanded_size(start, end);
+                    int col2 = col1 + Utils.Buffer.expanded_size(start, end);
                     error(
                         Vala.SourceLocation(start, i, col1),
                         Vala.SourceLocation(end, i, col2),

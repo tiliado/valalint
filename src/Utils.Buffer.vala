@@ -46,13 +46,13 @@ public char* skip_whitespace_backwards(char* pos, int limit=-1) {
 
 public string? substring_to_eol(char* pos) {
     unowned string? str = (string?) pos;
-    var len = move_to_eol(pos) - pos;
+    size_t len = move_to_eol(pos) - pos;
     return (len > 0) ? str.substring(0, (long) len) : null;
 }
 
 public string? substring_to_char(char* pos, char c) {
     unowned string? str = (string?) pos;
-    var len = move_to_char(pos, c) - pos;
+    size_t len = move_to_char(pos, c) - pos;
     return (len > 0) ? str.substring(0, (long) len) : null;
 }
 
@@ -87,7 +87,7 @@ public int expanded_size(char* start, char* end) {
     if (start == null || end == null || start > end) {
         return 0;
     }
-    var size = 0;
+    int size = 0;
     while (start != null && start != end) {
         switch (*start) {
         case '\0':

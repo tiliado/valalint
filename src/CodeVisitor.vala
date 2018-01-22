@@ -146,7 +146,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
         if (f.external_package) {
             return;
         }
-        var variable_type = f.variable_type;
+        Vala.DataType variable_type = f.variable_type;
         open("field %s %s ", f.name, variable_type != null ? variable_type.to_string() : null);
         f.accept_children(this);
         close();
@@ -313,6 +313,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_declaration_statement (Vala.DeclarationStatement stmt) {
         open("declaration stm");
+        rule.lint_declaration_statement(stmt);
         stmt.accept_children(this);
         close();
     }
@@ -324,6 +325,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_local_variable (Vala.LocalVariable local) {
         open("local %s", local.name);
+        rule.lint_local_variable(local);
         local.accept_children(this);
         close();
     }
