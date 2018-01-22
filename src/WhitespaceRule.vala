@@ -19,7 +19,7 @@ public class Linter.WhitespaceRule: Rule {
         space_indent = config.get_int_or(Config.CHECKS, "space_indent");
     }
 
-    public override void visit_tokens(TokenList tokens) {
+    public override void lint_tokens(TokenList tokens) {
         Token? token = null;
         while (tokens.next(out token)) {
             switch (token.type) {
@@ -124,7 +124,7 @@ public class Linter.WhitespaceRule: Rule {
         }
     }
 
-    public override void visit_source_file(Vala.SourceFile file) {
+    public override void lint_source_file(Vala.SourceFile file) {
         string? line;
         for (int i = 1; (line = file.get_source_line(i)) != null; i++) {
             char* pos = line;

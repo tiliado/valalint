@@ -11,7 +11,7 @@ public class Linter.NamespaceRule : Rule {
         no_nested_namespaces = config.get_bool_or(Config.CHECKS, "no_nested_namespaces");
     }
 
-    public override void visit_tokens(TokenList tokens) {
+    public override void lint_tokens(TokenList tokens) {
         var namespaces = new Vala.ArrayList<NamespaceRef>();
         NamespaceRef? ns_ref = null;
         Token? token = null;

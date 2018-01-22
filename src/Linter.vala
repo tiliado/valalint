@@ -9,30 +9,24 @@ public class Linter.Linter {
         this.config = config;
     }
 
-    public void lint(Vala.CodeContext context) {
+    public void lint(Vala.CodeContext context, CodeVisitor visitor) {
         this.context = context;
         foreach (var rule in rules) {
             rule.setup(config);
         }
 
         Vala.List<Vala.SourceFile> files = context.get_source_files();
+        bool dump_tree = visitor.dump_tree;
         foreach (var file in files) {
             if (file.filename.has_suffix(".vala")) {
                 var tokens = new TokenList.from_source(file);
                 var blocks = new Blocks(tokens);
-                Vala.List<Vala.CodeNode> nodes = file.get_nodes();
-                Vala.CodeNode[] nodes_to_remove = {};
-                foreach (var node in nodes) {
-                    var ns = node as Vala.Namespace;
-                    if (ns != null && ns.parent_symbol != null && ns.parent_symbol.name != null) {
-                        nodes_to_remove += node;
-                    }
-                }
-                foreach (var node in nodes_to_remove) {
-                    file.remove_node(node);
-                }
+                visitor.dump_tree = dump_tree;
                 foreach (var rule in rules) {
                     rule.apply(file, tokens.copy(true), blocks);
+                    visitor.apply_rule(rule, file);
+                    visitor.dump_tree = false;
+                    rule.reset();
                 }
             }
         }

@@ -6,6 +6,7 @@ class Linter.Main {
     static string config_file;
     static bool version;
     static bool api_version;
+    static bool dump_tree;
     [CCode (array_length = false, array_null_terminated = true)]
     static string[] sources;
     [CCode (array_length = false, array_null_terminated = true)]
@@ -62,6 +63,9 @@ class Linter.Main {
         }, {
             "api-version", 0, 0, OptionArg.NONE, ref api_version,
             "Display API version number", null
+        }, {
+            "dump-tree", 0, 0, OptionArg.NONE, ref dump_tree,
+            "Dump code visitor tree.", null
         }, {
             "define", 'D', 0, OptionArg.STRING_ARRAY, ref defines,
             "Define SYMBOL", "SYMBOL..."
@@ -245,7 +249,7 @@ class Linter.Main {
 
         Rule[] rules = {new WhitespaceRule(), new NamespaceRule()};
         var linter = new Linter((owned) rules, config);
-        linter.lint(context);
+        linter.lint(context, new CodeVisitor(dump_tree));
         return quit ();
     }
 

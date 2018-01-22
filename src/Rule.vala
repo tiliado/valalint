@@ -1,4 +1,4 @@
-public class Linter.Rule : Vala.CodeVisitor {
+public class Linter.Rule {
     protected Vala.SourceFile current_file = null;
     protected Blocks current_blocks = null;
     protected TokenList current_tokens = null;
@@ -13,8 +13,10 @@ public class Linter.Rule : Vala.CodeVisitor {
         current_file = file;
         current_blocks = blocks;
         current_tokens = tokens;
-        visit_tokens(tokens);
-        visit_source_file(file);
+        lint_tokens(tokens);
+    }
+
+    public void reset() {
         current_file = null;
         current_blocks = null;
         current_tokens = null;
@@ -35,20 +37,10 @@ public class Linter.Rule : Vala.CodeVisitor {
             new Vala.SourceReference(current_file, begin, end), message.vprintf(va_list()));
     }
 
-    public virtual void visit_tokens(TokenList tokens) {
+    public virtual void lint_tokens(TokenList tokens) {
     }
 
-    public override void visit_source_file(Vala.SourceFile file) {
-        file.accept_children(this);
-    }
-
-    /**
-     * Visit operation called for namespaces.
-     *
-     * @param ns a namespace
-     */
-    public override void visit_namespace (Vala.Namespace ns) {
-        ns.accept_children(this);
+    public virtual void lint_source_file(Vala.SourceFile file) {
     }
 
     /**
@@ -56,8 +48,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param cl a class
      */
-    public override void visit_class (Vala.Class cl) {
-        cl.accept_children(this);
+    public virtual void lint_class (Vala.Class cl) {
     }
 
     /**
@@ -65,8 +56,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param st a struct
      */
-    public override void visit_struct (Vala.Struct st) {
-        st.accept_children(this);
+    public virtual void lint_struct (Vala.Struct st) {
     }
 
     /**
@@ -74,8 +64,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param iface an interface
      */
-    public override void visit_interface (Vala.Interface iface) {
-        iface.accept_children(this);
+    public virtual void lint_interface (Vala.Interface iface) {
     }
 
     /**
@@ -83,8 +72,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param en an enum
      */
-    public override void visit_enum (Vala.Enum en) {
-        en.accept_children(this);
+    public virtual void lint_enum (Vala.Enum en) {
     }
 
     /**
@@ -92,8 +80,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param ev an enum value
      */
-    public override void visit_enum_value (Vala.EnumValue ev) {
-        ev.accept_children(this);
+    public virtual void lint_enum_value (Vala.EnumValue ev) {
     }
 
     /**
@@ -101,8 +88,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param edomain an error domain
      */
-    public override void visit_error_domain (Vala.ErrorDomain edomain) {
-        edomain.accept_children(this);
+    public virtual void lint_error_domain (Vala.ErrorDomain edomain) {
     }
 
     /**
@@ -110,8 +96,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param ecode an error code
      */
-    public override void visit_error_code (Vala.ErrorCode ecode) {
-        ecode.accept_children(this);
+    public virtual void lint_error_code (Vala.ErrorCode ecode) {
     }
 
     /**
@@ -119,8 +104,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param d a delegate
      */
-    public override void visit_delegate (Vala.Delegate d) {
-        d.accept_children(this);
+    public virtual void lint_delegate (Vala.Delegate d) {
     }
 
     /**
@@ -128,8 +112,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param c a constant
      */
-    public override void visit_constant (Vala.Constant c) {
-        c.accept_children(this);
+    public virtual void lint_constant (Vala.Constant c) {
     }
 
     /**
@@ -137,8 +120,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param f a field
      */
-    public override void visit_field (Vala.Field f) {
-        f.accept_children(this);
+    public virtual void lint_field (Vala.Field f) {
     }
 
     /**
@@ -146,8 +128,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param m a method
      */
-    public override void visit_method (Vala.Method m) {
-        m.accept_children(this);
+    public virtual void lint_method (Vala.Method m) {
     }
 
     /**
@@ -155,8 +136,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param m a method
      */
-    public override void visit_creation_method (Vala.CreationMethod m) {
-        m.accept_children(this);
+    public virtual void lint_creation_method (Vala.CreationMethod m) {
     }
 
     /**
@@ -164,8 +144,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param p a formal parameter
      */
-    public override void visit_formal_parameter (Vala.Parameter p) {
-        p.accept_children(this);
+    public virtual void lint_formal_parameter (Vala.Parameter p) {
     }
 
     /**
@@ -173,8 +152,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param prop a property
      */
-    public override void visit_property (Vala.Property prop) {
-        prop.accept_children(this);
+    public virtual void lint_property (Vala.Property prop) {
     }
 
     /**
@@ -182,8 +160,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param acc a property accessor
      */
-    public override void visit_property_accessor (Vala.PropertyAccessor acc) {
-        acc.accept_children(this);
+    public virtual void lint_property_accessor (Vala.PropertyAccessor acc) {
     }
 
     /**
@@ -191,8 +168,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param sig a signal
      */
-    public override void visit_signal (Vala.Signal sig) {
-        sig.accept_children(this);
+    public virtual void lint_signal (Vala.Signal sig) {
     }
 
     /**
@@ -200,8 +176,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param c a constructor
      */
-    public override void visit_constructor (Vala.Constructor c) {
-        c.accept_children(this);
+    public virtual void lint_constructor (Vala.Constructor c) {
     }
 
     /**
@@ -209,8 +184,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param d a destructor
      */
-    public override void visit_destructor (Vala.Destructor d) {
-        d.accept_children(this);
+    public virtual void lint_destructor (Vala.Destructor d) {
     }
 
     /**
@@ -218,8 +192,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param p a type parameter
      */
-    public override void visit_type_parameter (Vala.TypeParameter p) {
-        p.accept_children(this);
+    public virtual void lint_type_parameter (Vala.TypeParameter p) {
     }
 
     /**
@@ -227,8 +200,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param ns a using directive
      */
-    public override void visit_using_directive (Vala.UsingDirective ns) {
-        ns.accept_children(this);
+    public virtual void lint_using_directive (Vala.UsingDirective ns) {
     }
 
     /**
@@ -236,8 +208,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param type a type reference
      */
-    public override void visit_data_type (Vala.DataType type) {
-        type.accept_children(this);
+    public virtual void lint_data_type (Vala.DataType type) {
     }
 
     /**
@@ -245,8 +216,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param b a block
      */
-    public override void visit_block (Vala.Block b) {
-        b.accept_children(this);
+    public virtual void lint_block (Vala.Block b) {
     }
 
     /**
@@ -254,8 +224,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt an empty statement
      */
-    public override void visit_empty_statement (Vala.EmptyStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_empty_statement (Vala.EmptyStatement stmt) {
     }
 
     /**
@@ -263,8 +232,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a declaration statement
      */
-    public override void visit_declaration_statement (Vala.DeclarationStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_declaration_statement (Vala.DeclarationStatement stmt) {
     }
 
     /**
@@ -272,8 +240,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param local a local variable
      */
-    public override void visit_local_variable (Vala.LocalVariable local) {
-        local.accept_children(this);
+    public virtual void lint_local_variable (Vala.LocalVariable local) {
     }
 
     /**
@@ -281,8 +248,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param list an initializer list
      */
-    public override void visit_initializer_list (Vala.InitializerList list) {
-        list.accept_children(this);
+    public virtual void lint_initializer_list (Vala.InitializerList list) {
     }
 
     /**
@@ -290,8 +256,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt an expression statement
      */
-    public override void visit_expression_statement (Vala.ExpressionStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_expression_statement (Vala.ExpressionStatement stmt) {
     }
 
     /**
@@ -299,8 +264,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt an if statement
      */
-    public override void visit_if_statement (Vala.IfStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_if_statement (Vala.IfStatement stmt) {
     }
 
     /**
@@ -308,8 +272,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a switch statement
      */
-    public override void visit_switch_statement (Vala.SwitchStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_switch_statement (Vala.SwitchStatement stmt) {
     }
 
     /**
@@ -317,8 +280,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param section a switch section
      */
-    public override void visit_switch_section (Vala.SwitchSection section) {
-        section.accept_children(this);
+    public virtual void lint_switch_section (Vala.SwitchSection section) {
     }
 
     /**
@@ -326,8 +288,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param label a switch label
      */
-    public override void visit_switch_label (Vala.SwitchLabel label) {
-        label.accept_children(this);
+    public virtual void lint_switch_label (Vala.SwitchLabel label) {
     }
 
     /**
@@ -335,8 +296,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a loop
      */
-    public override void visit_loop (Vala.Loop stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_loop (Vala.Loop stmt) {
     }
 
     /**
@@ -344,8 +304,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt an while statement
      */
-    public override void visit_while_statement (Vala.WhileStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_while_statement (Vala.WhileStatement stmt) {
     }
 
     /**
@@ -353,8 +312,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a do statement
      */
-    public override void visit_do_statement (Vala.DoStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_do_statement (Vala.DoStatement stmt) {
     }
 
     /**
@@ -362,8 +320,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a for statement
      */
-    public override void visit_for_statement (Vala.ForStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_for_statement (Vala.ForStatement stmt) {
     }
 
     /**
@@ -371,8 +328,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a foreach statement
      */
-    public override void visit_foreach_statement (Vala.ForeachStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_foreach_statement (Vala.ForeachStatement stmt) {
     }
 
     /**
@@ -380,8 +336,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a break statement
      */
-    public override void visit_break_statement (Vala.BreakStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_break_statement (Vala.BreakStatement stmt) {
     }
 
     /**
@@ -389,8 +344,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a continue statement
      */
-    public override void visit_continue_statement (Vala.ContinueStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_continue_statement (Vala.ContinueStatement stmt) {
     }
 
     /**
@@ -398,8 +352,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a return statement
      */
-    public override void visit_return_statement (Vala.ReturnStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_return_statement (Vala.ReturnStatement stmt) {
     }
 
     /**
@@ -407,8 +360,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param y a yield statement
      */
-    public override void visit_yield_statement (Vala.YieldStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_yield_statement (Vala.YieldStatement stmt) {
     }
 
     /**
@@ -416,8 +368,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a throw statement
      */
-    public override void visit_throw_statement (Vala.ThrowStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_throw_statement (Vala.ThrowStatement stmt) {
     }
 
     /**
@@ -425,8 +376,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a try statement
      */
-    public override void visit_try_statement (Vala.TryStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_try_statement (Vala.TryStatement stmt) {
     }
 
     /**
@@ -434,7 +384,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param clause a catch cluase
      */
-    public override void visit_catch_clause (Vala.CatchClause clause) {
+    public virtual void lint_catch_clause (Vala.CatchClause clause) {
     }
 
     /**
@@ -442,8 +392,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a lock statement
      */
-    public override void visit_lock_statement (Vala.LockStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_lock_statement (Vala.LockStatement stmt) {
     }
 
     /**
@@ -451,8 +400,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt an unlock statement
      */
-    public override void visit_unlock_statement (Vala.UnlockStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_unlock_statement (Vala.UnlockStatement stmt) {
     }
 
     /**
@@ -460,8 +408,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param stmt a delete statement
      */
-    public override void visit_delete_statement (Vala.DeleteStatement stmt) {
-        stmt.accept_children(this);
+    public virtual void lint_delete_statement (Vala.DeleteStatement stmt) {
     }
 
     /**
@@ -469,8 +416,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an expression
      */
-    public override void visit_expression (Vala.Expression expr) {
-        expr.accept_children(this);
+    public virtual void lint_expression (Vala.Expression expr) {
     }
 
     /**
@@ -478,8 +424,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an array creation expression
      */
-    public override void visit_array_creation_expression (Vala.ArrayCreationExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_array_creation_expression (Vala.ArrayCreationExpression expr) {
     }
 
     /**
@@ -487,8 +432,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a boolean literal
      */
-    public override void visit_boolean_literal (Vala.BooleanLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_boolean_literal (Vala.BooleanLiteral lit) {
     }
 
     /**
@@ -496,8 +440,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a character literal
      */
-    public override void visit_character_literal (Vala.CharacterLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_character_literal (Vala.CharacterLiteral lit) {
     }
 
     /**
@@ -505,8 +448,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit an integer literal
      */
-    public override void visit_integer_literal (Vala.IntegerLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_integer_literal (Vala.IntegerLiteral lit) {
     }
 
     /**
@@ -514,8 +456,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a real literal
      */
-    public override void visit_real_literal (Vala.RealLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_real_literal (Vala.RealLiteral lit) {
     }
 
     /**
@@ -523,8 +464,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a regex literal
      */
-    public override void visit_regex_literal (Vala.RegexLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_regex_literal (Vala.RegexLiteral lit) {
     }
 
 
@@ -533,8 +473,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a string literal
      */
-    public override void visit_string_literal (Vala.StringLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_string_literal (Vala.StringLiteral lit) {
     }
 
     /**
@@ -542,8 +481,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param tmpl a string template
      */
-    public override void visit_template (Vala.Template tmpl) {
-        tmpl.accept_children(this);
+    public virtual void lint_template (Vala.Template tmpl) {
     }
 
     /**
@@ -551,8 +489,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param tuple a tuple
      */
-    public override void visit_tuple (Vala.Tuple tuple) {
-        tuple.accept_children(this);
+    public virtual void lint_tuple (Vala.Tuple tuple) {
     }
 
     /**
@@ -560,8 +497,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param lit a null literal
      */
-    public override void visit_null_literal (Vala.NullLiteral lit) {
-        lit.accept_children(this);
+    public virtual void lint_null_literal (Vala.NullLiteral lit) {
     }
 
     /**
@@ -569,8 +505,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a member access expression
      */
-    public override void visit_member_access (Vala.MemberAccess expr) {
-        expr.accept_children(this);
+    public virtual void lint_member_access (Vala.MemberAccess expr) {
     }
 
     /**
@@ -578,8 +513,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an invocation expression
      */
-    public override void visit_method_call (Vala.MethodCall expr) {
-        expr.accept_children(this);
+    public virtual void lint_method_call (Vala.MethodCall expr) {
     }
 
     /**
@@ -587,8 +521,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an element access expression
      */
-    public override void visit_element_access (Vala.ElementAccess expr) {
-        expr.accept_children(this);
+    public virtual void lint_element_access (Vala.ElementAccess expr) {
     }
 
     /**
@@ -596,8 +529,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an array slice expression
      */
-    public override void visit_slice_expression (Vala.SliceExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_slice_expression (Vala.SliceExpression expr) {
     }
 
     /**
@@ -605,8 +537,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a base access expression
      */
-    public override void visit_base_access (Vala.BaseAccess expr) {
-        expr.accept_children(this);
+    public virtual void lint_base_access (Vala.BaseAccess expr) {
     }
 
     /**
@@ -614,8 +545,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a postfix expression
      */
-    public override void visit_postfix_expression (Vala.PostfixExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_postfix_expression (Vala.PostfixExpression expr) {
     }
 
     /**
@@ -623,8 +553,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an object creation expression
      */
-    public override void visit_object_creation_expression (Vala.ObjectCreationExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_object_creation_expression (Vala.ObjectCreationExpression expr) {
     }
 
     /**
@@ -632,8 +561,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a sizeof expression
      */
-    public override void visit_sizeof_expression (Vala.SizeofExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_sizeof_expression (Vala.SizeofExpression expr) {
     }
 
     /**
@@ -641,8 +569,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a typeof expression
      */
-    public override void visit_typeof_expression (Vala.TypeofExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_typeof_expression (Vala.TypeofExpression expr) {
     }
 
     /**
@@ -650,8 +577,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an unary expression
      */
-    public override void visit_unary_expression (Vala.UnaryExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_unary_expression (Vala.UnaryExpression expr) {
     }
 
     /**
@@ -659,8 +585,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a call expression
      */
-    public override void visit_cast_expression (Vala.CastExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_cast_expression (Vala.CastExpression expr) {
     }
 
     /**
@@ -668,8 +593,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a named argument
      */
-    public override void visit_named_argument (Vala.NamedArgument expr) {
-        expr.accept_children(this);
+    public virtual void lint_named_argument (Vala.NamedArgument expr) {
     }
 
     /**
@@ -677,8 +601,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a pointer indirection
      */
-    public override void visit_pointer_indirection (Vala.PointerIndirection expr) {
-        expr.accept_children(this);
+    public virtual void lint_pointer_indirection (Vala.PointerIndirection expr) {
     }
 
     /**
@@ -686,8 +609,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr an address-of expression
      */
-    public override void visit_addressof_expression (Vala.AddressofExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_addressof_expression (Vala.AddressofExpression expr) {
     }
 
     /**
@@ -695,8 +617,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a reference transfer expression
      */
-    public override void visit_reference_transfer_expression (Vala.ReferenceTransferExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_reference_transfer_expression (Vala.ReferenceTransferExpression expr) {
     }
 
     /**
@@ -704,8 +625,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a binary expression
      */
-    public override void visit_binary_expression (Vala.BinaryExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_binary_expression (Vala.BinaryExpression expr) {
     }
 
     /**
@@ -713,8 +633,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a type check expression
      */
-    public override void visit_type_check (Vala.TypeCheck expr) {
-        expr.accept_children(this);
+    public virtual void lint_type_check (Vala.TypeCheck expr) {
     }
 
     /**
@@ -722,8 +641,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a conditional expression
      */
-    public override void visit_conditional_expression (Vala.ConditionalExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_conditional_expression (Vala.ConditionalExpression expr) {
     }
 
     /**
@@ -731,8 +649,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a lambda expression
      */
-    public override void visit_lambda_expression (Vala.LambdaExpression expr) {
-        expr.accept_children(this);
+    public virtual void lint_lambda_expression (Vala.LambdaExpression expr) {
     }
 
     /**
@@ -740,8 +657,7 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param a an assignment
      */
-    public override void visit_assignment (Vala.Assignment a) {
-        a.accept_children(this);
+    public virtual void lint_assignment (Vala.Assignment a) {
     }
 
     /**
@@ -749,7 +665,6 @@ public class Linter.Rule : Vala.CodeVisitor {
      *
      * @param expr a full expression
      */
-    public override void visit_end_full_expression (Vala.Expression expr) {
-        expr.accept_children(this);
+    public virtual void lint_end_full_expression (Vala.Expression expr) {
     }
 }
