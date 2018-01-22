@@ -22,89 +22,13 @@ public class Linter.WhitespaceRule: Rule {
     }
 
     public override void lint_tokens(TokenList tokens) {
-        int correct_indent_level = 0;
-        int last_line = 0;
-        int open_paren = 0;
-        int closed_paren = 0;
-        Block? toplevel_namespace = null;
+        if (space_indent > 0) {
+            lint_space_indent(tokens);
+            tokens.reset();
+        }
+
         Token? token = null;
         while (tokens.next(out token)) {
-            int line = token.begin.line;
-            if (space_indent > 0) {
-                switch (token.type) {
-                case Vala.TokenType.OPEN_BRACE:
-                    correct_indent_level++;
-                    break;
-                case Vala.TokenType.CLOSE_BRACE:
-                    if (toplevel_namespace != null && token.end.pos == toplevel_namespace.end.pos) {
-                        toplevel_namespace = null;
-                    }
-                    correct_indent_level--;
-                    break;
-                case Vala.TokenType.OPEN_PARENS:
-                    open_paren++;
-                    break;
-                case Vala.TokenType.CLOSE_PARENS:
-                    closed_paren++;
-                    break;
-                }
-                int indentation_shift = toplevel_namespace != null ? -1 : 0;
-                if (line != last_line) {
-                    switch (token.type) {
-                    case Vala.TokenType.CASE:
-                    case Vala.TokenType.DEFAULT:
-                    case Vala.TokenType.OPEN_BRACE:
-                    case Vala.TokenType.OP_AND:
-                    case Vala.TokenType.OP_OR:
-                        indentation_shift--;
-                        break;
-                    }
-                    last_line = line;
-                    if (open_paren > closed_paren) {
-                        correct_indent_level++;
-                    } else if (open_paren < closed_paren) {
-                        correct_indent_level--;
-                    }
-                    open_paren = 0;
-                    closed_paren = 0;
-
-                    int indent_level = -1;
-                    char* begin_pos = token.begin.pos;
-                    char* whitespace = Utils.Buffer.skip_whitespace_backwards(begin_pos, token.begin.column - 1);
-                    string? indent = null;
-                    if (begin_pos - whitespace > 0) {
-                        if (Utils.Buffer.index_of_char(whitespace, '\t') != null) {
-                            error(
-                                Vala.SourceLocation(whitespace, line, 1),
-                                Vala.SourceLocation(begin_pos, line, Utils.Buffer.expanded_size(whitespace, begin_pos)),
-                                "Tab for indentation is not allowed. Use %d spaces instead.", space_indent
-                            );
-                        } else {
-                            indent = Utils.Buffer.substring(whitespace, begin_pos);
-                            if (indent.length % space_indent != 0) {
-                                indent = null;
-                                error(
-                                    Vala.SourceLocation(whitespace, line, 1),
-                                    Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
-                                    "Indentation is not a multiple of %d spaces.", space_indent);
-                            } else {
-                                indent_level = indent.length / space_indent;
-                            }
-                        }
-                    } else {
-                        indent = "";
-                        indent_level = 0;
-                    }
-                    if (indent_level >= 0 && indent_level != correct_indent_level + indentation_shift) {
-                        error(
-                            Vala.SourceLocation(whitespace, line, 1),
-                            Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
-                            "Incorrect identation level %d (%d expected).", indent_level, correct_indent_level + indentation_shift);
-                        stderr.printf("line: %d, %d != %d '%s'\n", line, indent_level, correct_indent_level + indentation_shift, indent);
-                    }
-                }
-            }
-
             switch (token.type) {
             case Vala.TokenType.OPEN_BRACE:
                 if (space_before_bracket) {
@@ -130,14 +54,6 @@ public class Linter.WhitespaceRule: Rule {
                             prev_token.begin, token.end,
                             "There must be no space between %s and `,`.", prev_token.type.to_string());
                     }
-                }
-                break;
-            case Vala.TokenType.NAMESPACE:
-                if (toplevel_namespace == null && token.begin.column == 1) {
-                    toplevel_namespace = current_blocks.find(token.end.pos);
-                }
-                if (space_after_keyword) {
-                    lint_space_after_token(tokens, token);
                 }
                 break;
             case Vala.TokenType.ABSTRACT:
@@ -179,10 +95,105 @@ public class Linter.WhitespaceRule: Rule {
             case Vala.TokenType.WHILE:
             case Vala.TokenType.WEAK:
             case Vala.TokenType.YIELD:
+            case Vala.TokenType.NAMESPACE:
                 if (space_after_keyword) {
                     lint_space_after_token(tokens, token);
                 }
                 break;
+            }
+        }
+    }
+
+    private void lint_space_indent(TokenList tokens) {
+        int correct_indent_level = 0;
+        int last_line = 0;
+        int open_paren = 0;
+        int closed_paren = 0;
+        Block? toplevel_namespace = null;
+        Token? token = null;
+        while (tokens.next(out token)) {
+            int line = token.begin.line;
+            int indentation_shift = 0;
+            switch (token.type) {
+            case Vala.TokenType.NAMESPACE:
+                if (toplevel_namespace == null && token.begin.column == 1) {
+                    toplevel_namespace = current_blocks.find(token.end.pos);
+                    indentation_shift++;
+                }
+                break;
+            case Vala.TokenType.OPEN_BRACE:
+                correct_indent_level++;
+                break;
+            case Vala.TokenType.CLOSE_BRACE:
+                if (toplevel_namespace != null && token.end.pos == toplevel_namespace.end.pos) {
+                    toplevel_namespace = null;
+                }
+                correct_indent_level--;
+                break;
+            case Vala.TokenType.OPEN_PARENS:
+                open_paren++;
+                break;
+            case Vala.TokenType.CLOSE_PARENS:
+                closed_paren++;
+                break;
+            }
+            if (line != last_line) {
+                if (toplevel_namespace != null) {
+                    indentation_shift--;
+                }
+                switch (token.type) {
+                case Vala.TokenType.CASE:
+                case Vala.TokenType.DEFAULT:
+                case Vala.TokenType.OPEN_BRACE:
+                case Vala.TokenType.OP_AND:
+                case Vala.TokenType.OP_OR:
+                    indentation_shift--;
+                    break;
+                }
+                last_line = line;
+                if (open_paren > closed_paren) {
+                    correct_indent_level++;
+                } else if (open_paren < closed_paren) {
+                    correct_indent_level--;
+                }
+                open_paren = 0;
+                closed_paren = 0;
+
+                int indent_level = -1;
+                char* begin_pos = token.begin.pos;
+                char* whitespace = Utils.Buffer.skip_whitespace_backwards(begin_pos, token.begin.column - 1);
+                string? indent = null;
+                if (begin_pos - whitespace > 0) {
+                    if (Utils.Buffer.index_of_char(whitespace, '\t') != null) {
+                        error(
+                            Vala.SourceLocation(whitespace, line, 1),
+                            Vala.SourceLocation(begin_pos, line, Utils.Buffer.expanded_size(whitespace, begin_pos)),
+                            "Tab for indentation is not allowed. Use %d spaces instead.", space_indent
+                        );
+                    } else {
+                        indent = Utils.Buffer.substring(whitespace, begin_pos);
+                        if (indent.length % space_indent != 0) {
+                            indent = null;
+                            error(
+                                Vala.SourceLocation(whitespace, line, 1),
+                                Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
+                                "Indentation is not a multiple of %d spaces.", space_indent);
+                        } else {
+                            indent_level = indent.length / space_indent;
+                        }
+                    }
+                } else {
+                    indent = "";
+                    indent_level = 0;
+                }
+                if (indent_level >= 0 && indent_level != correct_indent_level + indentation_shift) {
+                    error(
+                        Vala.SourceLocation(whitespace, line, 1),
+                        Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
+                        "Incorrect identation level %d (%d expected).", indent_level, correct_indent_level + indentation_shift);
+                    stderr.printf("line: %d, %d != %d '%s'\n", line, indent_level, correct_indent_level + indentation_shift, indent);
+                }
+
             }
         }
     }
