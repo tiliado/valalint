@@ -106,6 +106,7 @@ public class Linter.WhitespaceRule: Rule {
             var is_ok = false;
             // (owned) cast
             is_ok |= token.type == Vala.TokenType.OWNED && *(token.begin.pos - 1) == '(' && *(token.end.pos) == ')';
+            is_ok |= token.type == Vala.TokenType.RETURN && *(token.end.pos) == ';';
             if (!is_ok) {
                 var location = Vala.SourceLocation(pos, token.end.line, token.end.column + (int)(pos - token.end.pos));
                 Token? next_token = null;
