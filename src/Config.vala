@@ -20,4 +20,12 @@ public class Linter.Config : KeyFile {
             return default_value;
         }
     }
+
+    public string? get_string_or(string group, string key, string? default_value=null) {
+        try {
+            return get_string(group, key);
+        } catch (GLib.KeyFileError e) {
+            return default_value;
+        }
+    }
 }
