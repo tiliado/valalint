@@ -2,11 +2,14 @@ public class Linter.Rule {
     protected Vala.SourceFile current_file = null;
     protected Blocks current_blocks = null;
     protected TokenList current_tokens = null;
+    public Vala.List<Fix> fixes = new Vala.ArrayList<Fix>();
+    public bool fix_errors = false;
 
     public Rule() {
     }
 
     public virtual void setup(Config config) {
+        fix_errors = config.get_bool_or(Config.OPTIONS, "fix_errors");
     }
 
     public void apply(Vala.SourceFile file, TokenList tokens, Blocks blocks) {
@@ -20,6 +23,12 @@ public class Linter.Rule {
         current_file = null;
         current_blocks = null;
         current_tokens = null;
+    }
+
+    public Fix fix(char* begin, char* end, owned string? replacement) {
+        var fix = new Fix(current_file, begin, end, (owned) replacement);
+        fixes.add(fix);
+        return fix;
     }
 
     public void error(Vala.SourceLocation begin, Vala.SourceLocation end, string message, ...) {

@@ -9,6 +9,7 @@ public class Linter.VariableRule : Rule {
     }
 
     public override void setup(Config config) {
+        base.setup(config);
         var_keyword_never = config.get_bool_or(Config.CHECKS, "var_keyword_never");
         var_keyword_object_creation = config.get_bool_or(Config.CHECKS, "var_keyword_object_creation");
         var_keyword_array_creation = config.get_bool_or(Config.CHECKS, "var_keyword_array_creation");

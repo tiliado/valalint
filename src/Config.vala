@@ -1,5 +1,6 @@
 public class Linter.Config : KeyFile {
     public const string CHECKS = "Checks";
+    public const string OPTIONS = "Options";
 
     public Config() {
         base();

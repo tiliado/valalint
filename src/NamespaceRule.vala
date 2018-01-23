@@ -7,6 +7,7 @@ public class Linter.NamespaceRule : Rule {
     }
 
     public override void setup(Config config) {
+        base.setup(config);
         end_of_namespace_comments = config.get_bool_or(Config.CHECKS, "end_of_namespace_comments");
         no_nested_namespaces = config.get_bool_or(Config.CHECKS, "no_nested_namespaces");
     }

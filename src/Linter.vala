@@ -1,8 +1,8 @@
 public class Linter.Linter {
     public Vala.CodeContext? context { get; set; }
     public Vala.SourceFile current_source_file { get; set; }
-    private Rule[] rules;
-    private Config config;
+    public Rule[] rules;
+    public Config config;
 
     public Linter(owned Rule[] rules, Config config) {
         this.rules = (owned) rules;

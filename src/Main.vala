@@ -7,6 +7,7 @@ class Linter.Main {
     static bool version;
     static bool api_version;
     static bool dump_tree;
+    static bool fix_errors;
     [CCode (array_length = false, array_null_terminated = true)]
     static string[] sources;
     [CCode (array_length = false, array_null_terminated = true)]
@@ -58,6 +59,9 @@ class Linter.Main {
             "basedir", 'b', 0, OptionArg.FILENAME, ref basedir,
             "Base source directory", "DIRECTORY"
         }, {
+            "fix", 0, 0, OptionArg.NONE, ref fix_errors,
+            "Fix errors. Experimental!", null
+        }, {
             "version", 0, 0, OptionArg.NONE, ref version,
             "Display version number", null
         }, {
@@ -100,7 +104,7 @@ class Linter.Main {
         }
     };
 
-    private int quit() {
+    private int quit(Fixer? fixer=null) {
         if (context.report.get_errors() == 0 && context.report.get_warnings() == 0) {
             return 0;
         }
@@ -115,6 +119,21 @@ class Linter.Main {
                 stdout.printf(
                     "Vala lint failed: %d error(s), %d warning(s)\n",
                     context.report.get_errors(), context.report.get_warnings());
+                if (fixer != null && fixer.n_applied_fixes + fixer.n_failed_fixes > 0) {
+                    if (fixer.n_failed_fixes > 0) {
+                        stdout.printf(
+                            "Lint auto fix failed: %d fix(es) failed, %d fix(es) applied.\n",
+                            fixer.n_failed_fixes, fixer.n_applied_fixes);
+                    } else {
+                        stdout.printf(
+                            "Lint auto fix succeeded: %d fix(es) applied.\n",
+                            fixer.n_applied_fixes);
+                    }
+                    if (fixer.n_applied_fixes > 0) {
+                        stdout.puts(
+                            "Some errors were fixed by auto fix. Run valalint again to get up-to-date results.\n");
+                    }
+                }
             }
             return 1;
         }
@@ -168,6 +187,10 @@ class Linter.Main {
                 stderr.printf("No checks are enabled. Use --config or --check to add some checks.\n");
             }
             return 1;
+        }
+
+        if (fix_errors) {
+            config.set_string(Config.OPTIONS, "fix_errors", "true");
         }
 
         if (basedir == null) {
@@ -244,7 +267,13 @@ class Linter.Main {
         Rule[] rules = {new WhitespaceRule(), new NamespaceRule(), new VariableRule()};
         var linter = new Linter((owned) rules, config);
         linter.lint(context, new CodeVisitor(dump_tree));
-        return quit();
+        var fixer = new Fixer();
+        foreach (unowned Rule rule in linter.rules) {
+            fixer.add_fixes(rule.fixes);
+        }
+        fixer.fix();
+
+        return quit(fixer);
     }
 
 
