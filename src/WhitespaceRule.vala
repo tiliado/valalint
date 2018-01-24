@@ -145,6 +145,9 @@ public class Linter.WhitespaceRule: Rule {
                 break;
             case Vala.TokenType.OPEN_BRACE:
                 correct_indent_level++;
+                if (toplevel_namespace != null && toplevel_namespace.begin.pos == token.begin.pos) {
+                    indentation_shift++;
+                }
                 break;
             case Vala.TokenType.CLOSE_BRACE:
                 if (toplevel_namespace != null && token.end.pos == toplevel_namespace.end.pos) {

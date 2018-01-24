@@ -40,3 +40,8 @@ public void baz() {
 }
 
 } // namespace Test
+
+namespace Test
+{
+const int num = 0;
+} // namespace Test

@@ -40,3 +40,8 @@ public void bar(int foo) {
     }
 
 } // namespace Test
+
+namespace Test
+    {
+        const int num = 0;
+    } // namespace Test
