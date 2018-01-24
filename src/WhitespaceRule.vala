@@ -160,51 +160,55 @@ public class Linter.WhitespaceRule: Rule {
                 open_paren = 0;
                 closed_paren = 0;
 
-                int indent_level = -1;
-                char* begin_pos = token.begin.pos;
-                char* whitespace = Utils.Buffer.skip_whitespace_backwards(begin_pos, token.begin.column - 1);
-                string? indent = null;
-                bool have_error = false;
-                if (begin_pos - whitespace > 0) {
-                    if (Utils.Buffer.index_of_char(whitespace, '\t') != null) {
-                        have_error = true;
-                        error(
-                            Vala.SourceLocation(whitespace, line, 1),
-                            Vala.SourceLocation(begin_pos, line, Utils.Buffer.expanded_size(whitespace, begin_pos)),
-                            "Tab for indentation is not allowed. Use %d spaces instead.", space_indent
-                        );
-                    }
-                    indent = Utils.Buffer.substring(whitespace, begin_pos).replace("\t", "    ");
-                    if (indent.length % space_indent != 0) {
-                        indent = null;
-                        have_error = true;
-                        error(
-                            Vala.SourceLocation(whitespace, line, 1),
-                            Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
-                            "Indentation is not a multiple of %d spaces.", space_indent);
-                    } else {
-                        indent_level = indent.length / space_indent;
-                    }
-                } else {
-                    indent = "";
-                    indent_level = 0;
-                }
-                int expected_indent_level = correct_indent_level + indentation_shift;
-                if (indent_level >= 0 && indent_level != expected_indent_level) {
-                    have_error = true;
-                    error(
-                        Vala.SourceLocation(whitespace, line, 1),
-                        Vala.SourceLocation(begin_pos, line, (int) (begin_pos - whitespace) + 1),
-                        "Incorrect identation level %d (%d expected).", indent_level, expected_indent_level);
-                }
-                if (have_error && fix_errors) {
-                    string? indent_str = expected_indent_level > 0
-                    ? string.nfill(space_indent * expected_indent_level, ' ')
-                    : null;
-                    fix(whitespace, begin_pos, (owned) indent_str);
-                }
-
+                char* indent_end = token.begin.pos;
+                char* indent_begin = Utils.Buffer.skip_whitespace_backwards(indent_end, token.begin.column - 1);
+                int expected_level = correct_indent_level + indentation_shift;
+                lint_space_indent_line(line, expected_level, indent_begin, indent_end);
             }
+        }
+    }
+
+    private void lint_space_indent_line(int line, int expected_level, char* indent_begin, char* indent_end) {
+        int indent_level = -1;
+        string? indent = null;
+        bool have_error = false;
+        if (indent_end - indent_begin > 0) {
+            if (Utils.Buffer.index_of_char(indent_begin, '\t') != null) {
+                have_error = true;
+                error(
+                    Vala.SourceLocation(indent_begin, line, 1),
+                    Vala.SourceLocation(indent_end, line, Utils.Buffer.expanded_size(indent_begin, indent_end)),
+                    "Tab for indentation is not allowed. Use %d spaces instead.", space_indent
+                );
+            }
+            indent = Utils.Buffer.substring(indent_begin, indent_end).replace("\t", "    ");
+            if (indent.length % space_indent != 0) {
+                indent = null;
+                have_error = true;
+                error(
+                    Vala.SourceLocation(indent_begin, line, 1),
+                    Vala.SourceLocation(indent_end, line, (int) (indent_end - indent_begin) + 1),
+                    "Indentation is not a multiple of %d spaces.", space_indent);
+            } else {
+                indent_level = indent.length / space_indent;
+            }
+        } else {
+            indent = "";
+            indent_level = 0;
+        }
+
+        if (indent_level >= 0 && indent_level != expected_level) {
+            have_error = true;
+            error(
+                Vala.SourceLocation(indent_begin, line, 1),
+                Vala.SourceLocation(indent_end, line, (int) (indent_end - indent_begin) + 1),
+                "Incorrect identation level %d (%d expected).", indent_level, expected_level);
+        }
+        if (have_error && fix_errors) {
+            string? indent_str = expected_level > 0
+            ? string.nfill(space_indent * expected_level, ' ')
+            : null;
+            fix(indent_begin, indent_end, (owned) indent_str);
         }
     }
 
