@@ -108,11 +108,10 @@ public class Linter.WhitespaceRule: Rule {
     private void lint_space_indent(TokenList tokens) {
         int correct_indent_level = 0;
         int last_line = 0;
-        int open_paren = 0;
-        int closed_paren = 0;
         Block? toplevel_namespace = null;
         Token? token = null;
         char* cursor = current_file.get_mapped_contents();
+        var open_parens = new Vala.ArrayList<ParenRef>();
         while (tokens.next(out token)) {
             int line = token.begin.line;
             int indentation_shift = 0;
@@ -143,24 +142,49 @@ public class Linter.WhitespaceRule: Rule {
                     toplevel_namespace = current_blocks.find(token.end.pos);
                 }
                 break;
+            case Vala.TokenType.OPEN_PARENS:
             case Vala.TokenType.OPEN_BRACE:
-                correct_indent_level++;
-                if (toplevel_namespace != null && toplevel_namespace.begin.pos == token.begin.pos) {
+                int i = open_parens.size - 1;
+                if (i >= 0 && open_parens[i].line == line) {
+                    open_parens[i].indents = false;
+                } else {
+                    correct_indent_level++;
+                }
+                open_parens.add(new ParenRef(token.type, line, true));
+                if (token.type == Vala.TokenType.OPEN_BRACE
+                && toplevel_namespace != null
+                && toplevel_namespace.begin.pos == token.begin.pos) {
                     indentation_shift++;
                 }
                 break;
+            case Vala.TokenType.CLOSE_PARENS:
             case Vala.TokenType.CLOSE_BRACE:
-                if (toplevel_namespace != null && token.end.pos == toplevel_namespace.end.pos) {
+                if (token.type == Vala.TokenType.CLOSE_BRACE
+                && toplevel_namespace != null
+                && token.end.pos == toplevel_namespace.end.pos) {
                     indentation_shift++;
                     toplevel_namespace = null;
                 }
-                correct_indent_level--;
-                break;
-            case Vala.TokenType.OPEN_PARENS:
-                open_paren++;
-                break;
-            case Vala.TokenType.CLOSE_PARENS:
-                closed_paren++;
+                int i = open_parens.size - 1;
+                if (i >= 0) {
+                    ParenRef paren = open_parens.remove_at(i);
+                    if (paren.indents) {
+                        if (paren.line == line) {
+                            if (--i >= 0) {
+                                paren = open_parens[i];
+                                if (paren.line == line) {
+                                    paren.indents = true;
+                                } else {
+                                    correct_indent_level--;
+                                }
+                            } else {
+                                correct_indent_level--;
+                            }
+                        } else {
+                            correct_indent_level--;
+                        }
+                    }
+                }
                 break;
             }
             if (line != last_line) {
@@ -170,18 +194,12 @@ public class Linter.WhitespaceRule: Rule {
                 case Vala.TokenType.OPEN_BRACE:
                 case Vala.TokenType.OP_AND:
                 case Vala.TokenType.OP_OR:
+                case Vala.TokenType.OPEN_PARENS:
                     indentation_shift--;
                     break;
+
                 }
                 last_line = line;
-                if (open_paren > closed_paren) {
-                    correct_indent_level++;
-                } else if (open_paren < closed_paren) {
-                    correct_indent_level--;
-                }
-                open_paren = 0;
-                closed_paren = 0;
-
                 char* indent_end = token.begin.pos;
                 char* indent_begin = Utils.Buffer.skip_whitespace_backwards(indent_end, token.begin.column - 1);
                 int expected_level = correct_indent_level + indentation_shift;
@@ -295,6 +313,18 @@ public class Linter.WhitespaceRule: Rule {
                     Vala.SourceLocation(paren, source_ref.begin.line, col2),
                     "No whitespace in method call allowed.");
             }
+        }
+    }
+
+    private class ParenRef {
+        public Vala.TokenType type;
+        public int line;
+        public bool indents;
+
+        public ParenRef(Vala.TokenType type, int line, bool indents) {
+            this.type = type;
+            this.line = line;
+            this.indents = indents;
         }
     }
 }
