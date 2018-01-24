@@ -1,0 +1,45 @@
+build/test/test.vala:4.1-4.5: error: Incorrect identation level 1 (0 expected).
+    public void foo() {
+^^^^^
+build/test/test.vala:5.1-5.9: error: Incorrect identation level 2 (1 expected).
+        warning("Hello");
+^^^^^^^^^
+build/test/test.vala:6.1-6.5: error: Incorrect identation level 1 (0 expected).
+    }
+^^^^^
+build/test/test.vala:11.1-11.9: error: Incorrect identation level 2 (1 expected).
+        case 1:
+^^^^^^^^^
+build/test/test.vala:12.1-12.13: error: Incorrect identation level 3 (2 expected).
+            print(1);
+^^^^^^^^^^^^^
+build/test/test.vala:13.1-13.13: error: Incorrect identation level 3 (2 expected).
+            break;
+^^^^^^^^^^^^^
+build/test/test.vala:15.1-15.9: error: Incorrect identation level 2 (1 expected).
+        default:
+^^^^^^^^^
+build/test/test.vala:16.1-16.13: error: Incorrect identation level 3 (2 expected).
+            print(0);
+^^^^^^^^^^^^^
+build/test/test.vala:17.1-17.13: error: Incorrect identation level 3 (2 expected).
+            break;
+^^^^^^^^^^^^^
+build/test/test.vala:22.1-22.9: error: Incorrect identation level 2 (1 expected).
+        || foo == 2
+^^^^^^^^^
+build/test/test.vala:23.1-23.9: error: Incorrect identation level 2 (1 expected).
+        && foo == 3) {
+^^^^^^^^^
+build/test/test.vala:26.1-26.5: error: Incorrect identation level 1 (2 expected).
+    print();
+^^^^^
+build/test/test.vala:30.1-30.5: error: Incorrect identation level 1 (2 expected).
+    1,
+^^^^^
+build/test/test.vala:31.1-31.5: error: Incorrect identation level 1 (2 expected).
+    2);
+^^^^^
+build/test/test.vala:33.1-33.5: error: Incorrect identation level 1 (2 expected).
+    1, 2));
+^^^^^
