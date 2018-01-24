@@ -18,6 +18,9 @@ public class Linter.VariableRule : Rule {
 
     public override void lint_declaration_statement(Vala.DeclarationStatement stm) {
         var declaration = stm.declaration as Vala.LocalVariable;
+        if (declaration == null) {
+            return;
+        }
         Vala.Expression? initializer = declaration.initializer;
         if (declaration.variable_type == null) {
             if (var_keyword_never) {
