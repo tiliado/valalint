@@ -112,14 +112,35 @@ public class Linter.WhitespaceRule: Rule {
         int closed_paren = 0;
         Block? toplevel_namespace = null;
         Token? token = null;
+        char* cursor = current_file.get_mapped_contents();
         while (tokens.next(out token)) {
             int line = token.begin.line;
             int indentation_shift = 0;
+            if (toplevel_namespace != null) {
+                indentation_shift--;
+            }
+            while (line - last_line > 1) {
+                /* There were some lines without any token. */
+                last_line++;
+                cursor = Utils.Buffer.move_to_eol(cursor);
+                if (cursor != null && *cursor == '\n') {
+                    cursor++;
+                    char* indent_begin = cursor;
+                    int expected_level = correct_indent_level + indentation_shift;
+                    char* indent_end = Utils.Buffer.skip_whitespace_stop_at_eol(indent_begin);
+                    bool empty_line = Utils.Buffer.move_to_eol(indent_begin) - indent_begin == 0;
+                    if (!empty_line) {
+                        int extra_spaces = indent_end != null && *indent_end == '*' ? 1 : 0;  // multiline comments
+                        lint_space_indent_line(last_line, expected_level, indent_begin, indent_end, extra_spaces);
+                    }
+                }
+            }
+            cursor = token.begin.pos;
+
             switch (token.type) {
             case Vala.TokenType.NAMESPACE:
                 if (toplevel_namespace == null && token.begin.column == 1) {
                     toplevel_namespace = current_blocks.find(token.end.pos);
-                    indentation_shift++;
                 }
                 break;
             case Vala.TokenType.OPEN_BRACE:
@@ -127,6 +148,7 @@ public class Linter.WhitespaceRule: Rule {
                 break;
             case Vala.TokenType.CLOSE_BRACE:
                 if (toplevel_namespace != null && token.end.pos == toplevel_namespace.end.pos) {
+                    indentation_shift++;
                     toplevel_namespace = null;
                 }
                 correct_indent_level--;
@@ -139,9 +161,6 @@ public class Linter.WhitespaceRule: Rule {
                 break;
             }
             if (line != last_line) {
-                if (toplevel_namespace != null) {
-                    indentation_shift--;
-                }
                 switch (token.type) {
                 case Vala.TokenType.CASE:
                 case Vala.TokenType.DEFAULT:
@@ -168,7 +187,9 @@ public class Linter.WhitespaceRule: Rule {
         }
     }
 
-    private void lint_space_indent_line(int line, int expected_level, char* indent_begin, char* indent_end) {
+    private void lint_space_indent_line(
+        int line, int expected_level, char* indent_begin, char* indent_end, int extra_spaces=0
+    ) {
         int indent_level = -1;
         string? indent = null;
         bool have_error = false;
@@ -182,7 +203,7 @@ public class Linter.WhitespaceRule: Rule {
                 );
             }
             indent = Utils.Buffer.substring(indent_begin, indent_end).replace("\t", "    ");
-            if (indent.length % space_indent != 0) {
+            if ((indent.length - extra_spaces) % space_indent != 0) {
                 indent = null;
                 have_error = true;
                 error(
@@ -190,7 +211,7 @@ public class Linter.WhitespaceRule: Rule {
                     Vala.SourceLocation(indent_end, line, (int) (indent_end - indent_begin) + 1),
                     "Indentation is not a multiple of %d spaces.", space_indent);
             } else {
-                indent_level = indent.length / space_indent;
+                indent_level = (indent.length - extra_spaces) / space_indent;
             }
         } else {
             indent = "";
@@ -205,8 +226,8 @@ public class Linter.WhitespaceRule: Rule {
                 "Incorrect identation level %d (%d expected).", indent_level, expected_level);
         }
         if (have_error && fix_errors) {
-            string? indent_str = expected_level > 0
-            ? string.nfill(space_indent * expected_level, ' ')
+            string? indent_str = expected_level + extra_spaces > 0
+            ? string.nfill(space_indent * expected_level + extra_spaces, ' ')
             : null;
             fix(indent_begin, indent_end, (owned) indent_str);
         }

@@ -1,6 +1,6 @@
 namespace Test {
 
-    /* Toplevel namespace - shift -1 */
+/* Toplevel namespace - shift -1 */
 public void foo() {
     warning("Hello");
 }
@@ -31,6 +31,12 @@ public void bar(int foo) {
         2);
     print(print(
         1, 2));
+}
+
+/*
+ * Multiline comment.
+ */
+public void baz() {
 }
 
 } // namespace Test

@@ -1,3 +1,3 @@
-Vala lint failed: 15 error(s), 0 warning(s)
-Lint auto fix succeeded: 15 fix(es) applied.
+Vala lint failed: 21 error(s), 0 warning(s)
+Lint auto fix succeeded: 21 fix(es) applied.
 Some errors were fixed by auto fix. Run valalint again to get up-to-date results.

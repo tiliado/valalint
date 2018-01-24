@@ -1,3 +1,6 @@
+build/test/test.vala:3.1-3.5: error: Incorrect identation level 1 (0 expected).
+    /* Toplevel namespace - shift -1 */
+^^^^^
 build/test/test.vala:4.1-4.5: error: Incorrect identation level 1 (0 expected).
     public void foo() {
 ^^^^^
@@ -42,4 +45,19 @@ build/test/test.vala:31.1-31.5: error: Incorrect identation level 1 (2 expected)
 ^^^^^
 build/test/test.vala:33.1-33.5: error: Incorrect identation level 1 (2 expected).
     1, 2));
+^^^^^
+build/test/test.vala:36.1-36.5: error: Incorrect identation level 1 (0 expected).
+    /*
+^^^^^
+build/test/test.vala:37.1-37.6: error: Incorrect identation level 1 (0 expected).
+     * Multiline comment.
+^^^^^^
+build/test/test.vala:38.1-38.6: error: Incorrect identation level 1 (0 expected).
+     */
+^^^^^^
+build/test/test.vala:39.1-39.5: error: Incorrect identation level 1 (0 expected).
+    public void baz() {
+^^^^^
+build/test/test.vala:40.1-40.5: error: Incorrect identation level 1 (0 expected).
+    }
 ^^^^^

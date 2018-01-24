@@ -33,4 +33,10 @@ public void bar(int foo) {
     1, 2));
 }
 
+    /*
+     * Multiline comment.
+     */
+    public void baz() {
+    }
+
 } // namespace Test
