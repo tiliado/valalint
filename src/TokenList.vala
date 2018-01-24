@@ -7,6 +7,7 @@ public class Linter.TokenList {
         this.tokens = tokens;
         this.size = tokens.size;
         this.pos = 0 <= pos < size ? pos : 0;
+        fix_identifier_tokens();
     }
 
     public TokenList.from_source(Vala.SourceFile source_file) {
@@ -65,5 +66,17 @@ public class Linter.TokenList {
 
     public TokenList copy(bool reset) {
         return new TokenList(tokens, reset ? 0 : pos);
+    }
+
+    private void fix_identifier_tokens() {
+        int pos = this.pos;
+        reset();
+        Token? token = null;
+        while (next(out token)) {
+            if (token.type == Vala.TokenType.IDENTIFIER && token.begin.column > 1 && *(token.begin.pos - 1) == '@') {
+                token.begin.pos--;
+            }
+        }
+        this.pos = pos;
     }
 }
