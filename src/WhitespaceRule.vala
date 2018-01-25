@@ -134,7 +134,6 @@ public class Linter.WhitespaceRule: Rule {
                     }
                 }
             }
-            cursor = token.begin.pos;
 
             switch (token.type) {
             case Vala.TokenType.NAMESPACE:
@@ -199,12 +198,14 @@ public class Linter.WhitespaceRule: Rule {
                     break;
 
                 }
-                last_line = line;
                 char* indent_end = token.begin.pos;
                 char* indent_begin = Utils.Buffer.skip_whitespace_backwards(indent_end, token.begin.column - 1);
                 int expected_level = correct_indent_level + indentation_shift;
                 lint_space_indent_line(line, expected_level, indent_begin, indent_end);
             }
+
+            cursor = token.end.pos;
+            last_line = token.end.line;  // It differs from `line` in multiline tokens, e.g. """literals"""
         }
     }
 
