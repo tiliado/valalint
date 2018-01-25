@@ -277,6 +277,9 @@ public class Linter.WhitespaceRule: Rule {
                         token.end, location,
                         "There must be a single space after %s.", token.type.to_string());
                 }
+                if (fix_errors) {
+                    fix(token.end.pos, pos, " ");
+                }
             }
         }
     }
