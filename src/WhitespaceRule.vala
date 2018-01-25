@@ -305,16 +305,13 @@ public class Linter.WhitespaceRule: Rule {
     }
 
     public override void lint_method_call (Vala.MethodCall expr) {
-        Vala.SourceReference source_ref = expr.source_reference;
-        if (method_call_no_space) {
-            char* paren = Utils.Buffer.index_of_char(source_ref.begin.pos, null, '(');
+        if (method_call_no_space && expr.call != null) {
+            Vala.SourceReference source_ref = expr.call.source_reference;
+            char* paren = Utils.Buffer.index_of_char(source_ref.end.pos, null, '(');
             char* whitespace = Utils.Buffer.skip_whitespace_backwards(paren);
             if (paren - whitespace > 0) {
-                int col1 = source_ref.begin.column + (int)(whitespace - source_ref.begin.pos);
-                int col2 = source_ref.begin.column + (int)(paren - source_ref.begin.pos);
                 error(
-                    Vala.SourceLocation(whitespace, source_ref.begin.line, col1),
-                    Vala.SourceLocation(paren, source_ref.begin.line, col2),
+                    expr.source_reference.begin, expr.source_reference.end,
                     "No whitespace in method call allowed.");
                 if (fix_errors) {
                     fix(whitespace, paren, null);

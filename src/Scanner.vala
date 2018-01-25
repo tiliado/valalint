@@ -247,7 +247,7 @@ public class Vala.Scanner2 {
                     } else if (current[0] == '\n') {
                         break;
                     } else {
-                        unichar u =((string) current).get_char_validated ((long) (end - current));
+                        unichar u =((string) current).get_char_validated((long) (end - current));
                         if (u != (unichar) (-1)) {
                             current += u.to_utf8(null);
                             token_length_in_chars++;
@@ -749,7 +749,7 @@ public class Vala.Scanner2 {
                         column = 1;
                         token_length_in_chars = 1;
                     } else {
-                        unichar u =((string) current).get_char_validated ((long) (end - current));
+                        unichar u =((string) current).get_char_validated((long) (end - current));
                         if (u != (unichar) (-1)) {
                             current += u.to_utf8(null);
                             token_length_in_chars++;
@@ -1109,7 +1109,7 @@ public class Vala.Scanner2 {
                             column = 1;
                             token_length_in_chars = 3;
                         } else {
-                            unichar u =((string) current).get_char_validated ((long) (end - current));
+                            unichar u =((string) current).get_char_validated((long) (end - current));
                             if (u != (unichar) (-1)) {
                                 current += u.to_utf8(null);
                                 token_length_in_chars++;
@@ -1188,7 +1188,7 @@ public class Vala.Scanner2 {
                         column = 1;
                         token_length_in_chars = 1;
                     } else {
-                        unichar u =((string) current).get_char_validated ((long) (end - current));
+                        unichar u =((string) current).get_char_validated((long) (end - current));
                         if (u != (unichar) (-1)) {
                             current += u.to_utf8(null);
                             token_length_in_chars++;
@@ -1209,7 +1209,7 @@ public class Vala.Scanner2 {
                 }
                 break;
             default:
-                unichar u =((string) current).get_char_validated ((long) (end - current));
+                unichar u =((string) current).get_char_validated((long) (end - current));
                 if (u != (unichar) (-1)) {
                     current += u.to_utf8(null);
                     Report.error(get_source_reference(0), "syntax error, unexpected character");
@@ -1411,7 +1411,7 @@ public class Vala.Scanner2 {
             return false;
         }
 
-        string identifier =((string) (current - len)).substring (0, len);
+        string identifier =((string) (current - len)).substring(0, len);
         bool defined;
         if (identifier == "true") {
             defined = true;
@@ -1556,7 +1556,7 @@ public class Vala.Scanner2 {
             }
 
             if (source_reference != null) {
-                push_comment(((string) begin).substring (0, (long) (current - begin)), source_reference, file_comment);
+                push_comment(((string) begin).substring(0, (long) (current - begin)), source_reference, file_comment);
             }
         } else {
             SourceReference source_reference = null;
@@ -1589,7 +1589,7 @@ public class Vala.Scanner2 {
             }
 
             if (source_reference != null) {
-                push_comment(((string) begin).substring (0, (long) (current - begin)), source_reference, file_comment);
+                push_comment(((string) begin).substring(0, (long) (current - begin)), source_reference, file_comment);
             }
 
             current += 2;
