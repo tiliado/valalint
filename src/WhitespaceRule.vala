@@ -259,6 +259,9 @@ public class Linter.WhitespaceRule: Rule {
         if (token.begin.column > 1 && *(token.begin.pos - 1) == '.') {
             return;  // e.g. object.ref()
         }
+        if (token.end.pos != null && *(token.end.pos) == ';') {
+            return;  // e.g. yield;
+        }
         char* pos = Utils.Buffer.skip_whitespace_stop_at_eol(token.end.pos);
         string? sep = Utils.Buffer.substring(token.end.pos, pos);
         bool doesnt_have_space = sep != " ";
