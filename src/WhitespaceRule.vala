@@ -315,6 +315,9 @@ public class Linter.WhitespaceRule: Rule {
                     Vala.SourceLocation(whitespace, source_ref.begin.line, col1),
                     Vala.SourceLocation(paren, source_ref.begin.line, col2),
                     "No whitespace in method call allowed.");
+                if (fix_errors) {
+                    fix(whitespace, paren, null);
+                }
             }
         }
     }
