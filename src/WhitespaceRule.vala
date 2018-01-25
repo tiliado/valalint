@@ -28,9 +28,16 @@ public class Linter.WhitespaceRule: Rule {
             tokens.reset();
         }
 
+        bool in_template = false;
         Token? token = null;
         while (tokens.next(out token)) {
             switch (token.type) {
+            case Vala.TokenType.OPEN_TEMPLATE:
+                in_template = true;
+                break;
+            case Vala.TokenType.CLOSE_TEMPLATE:
+                in_template = false;
+                break;
             case Vala.TokenType.OPEN_BRACE:
                 if (space_before_bracket) {
                     Token? prev_token = null;
@@ -44,16 +51,18 @@ public class Linter.WhitespaceRule: Rule {
                 }
                 break;
             case Vala.TokenType.COMMA:
-                if (space_after_comma) {
-                    lint_space_after_token(tokens, token, true);
-                }
-                if (no_space_before_comma) {
-                    Token? prev_token = null;
-                    if (tokens.peek(-1, out prev_token)
-                    && Utils.Buffer.substring(prev_token.end.pos, token.begin.pos) != null) {
-                        error(
-                            prev_token.begin, token.end,
-                            "There must be no space between %s and `,`.", prev_token.type.to_string());
+                if (!in_template) {
+                    if (space_after_comma) {
+                        lint_space_after_token(tokens, token, true);
+                    }
+                    if (no_space_before_comma) {
+                        Token? prev_token = null;
+                        if (tokens.peek(-1, out prev_token)
+                        && Utils.Buffer.substring(prev_token.end.pos, token.begin.pos) != null) {
+                            error(
+                                prev_token.begin, token.end,
+                                "There must be no space between %s and `,`.", prev_token.type.to_string());
+                        }
                     }
                 }
                 break;
