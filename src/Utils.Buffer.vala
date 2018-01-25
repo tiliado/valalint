@@ -104,8 +104,8 @@ public int expanded_size(char* start, char* end) {
     return size;
 }
 
-public char* index_of_char(char* pos, char c) {
-    while (pos != null && *pos != '\0') {
+public char* index_of_char(char* pos, char* end_pos, char c) {
+    while (pos != null && (end_pos == null || pos < end_pos) && *pos != '\0') {
         if (*pos == c) {
             return pos;
         }

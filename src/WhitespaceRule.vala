@@ -215,7 +215,7 @@ public class Linter.WhitespaceRule: Rule {
         string? indent = null;
         bool have_error = false;
         if (indent_end - indent_begin > 0) {
-            if (Utils.Buffer.index_of_char(indent_begin, '\t') != null) {
+            if (Utils.Buffer.index_of_char(indent_begin, indent_end, '\t') != null) {
                 have_error = true;
                 error(
                     Vala.SourceLocation(indent_begin, line, 1),
@@ -306,7 +306,7 @@ public class Linter.WhitespaceRule: Rule {
     public override void lint_method_call (Vala.MethodCall expr) {
         Vala.SourceReference source_ref = expr.source_reference;
         if (method_call_no_space) {
-            char* paren = Utils.Buffer.index_of_char(source_ref.begin.pos, '(');
+            char* paren = Utils.Buffer.index_of_char(source_ref.begin.pos, null, '(');
             char* whitespace = Utils.Buffer.skip_whitespace_backwards(paren);
             if (paren - whitespace > 0) {
                 int col1 = source_ref.begin.column + (int)(whitespace - source_ref.begin.pos);
