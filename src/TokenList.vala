@@ -12,7 +12,7 @@ public class Linter.TokenList {
 
     public TokenList.from_source(Vala.SourceFile source_file) {
         var tokens = new Vala.ArrayList<Token>();
-        var scanner = new Vala.Scanner(source_file);
+        var scanner = new Vala.Scanner2(source_file, false);
         Vala.TokenType token_type = Vala.TokenType.NONE;
         Vala.SourceLocation token_begin;
         Vala.SourceLocation token_end;
