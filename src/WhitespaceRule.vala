@@ -66,7 +66,6 @@ public class Linter.WhitespaceRule: Rule {
             case Vala.TokenType.DELEGATE:
             case Vala.TokenType.DO:
             case Vala.TokenType.DYNAMIC:
-            case Vala.TokenType.ELSE:
             case Vala.TokenType.ENUM:
             case Vala.TokenType.ERRORDOMAIN:
             case Vala.TokenType.EXTERN:
@@ -89,7 +88,6 @@ public class Linter.WhitespaceRule: Rule {
             case Vala.TokenType.RETURN:
             case Vala.TokenType.STATIC:
             case Vala.TokenType.STRUCT:
-            case Vala.TokenType.TRY:
             case Vala.TokenType.UNOWNED:
             case Vala.TokenType.VAR:
             case Vala.TokenType.VIRTUAL:
