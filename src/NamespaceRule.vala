@@ -71,8 +71,10 @@ public class Linter.NamespaceRule : Rule {
                 "Nesting of namespaces not allowed. Use `namespace %s {`.", ns_ref.full_name());
         }
         if (end_of_namespace_comments) {
-            string ns_end_text = " // namespace " + ns_ref.name;
-            if (Utils.Buffer.substring_to_eol(ns_ref.close_end.pos) != ns_end_text) {
+            string? found = Utils.Buffer.substring_to_eol(ns_ref.close_end.pos);
+            string pattern = "\\s+// namespace " + Regex.escape_string(ns_ref.name);
+            if (found != null && !Regex.match_simple(pattern, found)) {
+                string ns_end_text = " // namespace " + ns_ref.name;
                 char* eol = Utils.Buffer.move_to_eol(ns_ref.close_end.pos);
                 int column = ns_ref.close_end.column + (int) (eol - ns_ref.close_end.pos);
                 error(
@@ -81,6 +83,12 @@ public class Linter.NamespaceRule : Rule {
                     "Missing or malformed end of namespace comment: `}%s`",
                     ns_end_text);
                 notice(ns_ref.open_begin, ns_ref.open_end, "The `%s` namespace begins here.", ns_ref.name);
+                if (fix_errors) {
+                    pattern = "\\s*//\\s*(namespace)?\\s*" + Regex.escape_string(ns_ref.name) + "\\s*";
+                    if (Utils.String.is_whitespace(found) || Regex.match_simple(pattern, found)) {
+                        fix(ns_ref.close_end.pos, eol, ns_end_text);
+                    }
+                }
             }
         }
     }
