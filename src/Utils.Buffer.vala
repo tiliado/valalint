@@ -114,4 +114,20 @@ public char* index_of_char(char* pos, char* end_pos, char c) {
     return null;
 }
 
+public bool is_whitespace(char* begin, char* end) {
+    while (begin != null && (end == null || begin < end) && *begin != '\0') {
+        switch (*begin) {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            begin++;
+            break;
+        default:
+            return false;
+        }
+    }
+    return true;
+}
+
 } // namespace Linter.Utils.Buffer

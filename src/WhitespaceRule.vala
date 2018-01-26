@@ -57,11 +57,16 @@ public class Linter.WhitespaceRule: Rule {
                     }
                     if (no_space_before_comma) {
                         Token? prev_token = null;
-                        if (tokens.peek(-1, out prev_token)
-                        && Utils.Buffer.substring(prev_token.end.pos, token.begin.pos) != null) {
-                            error(
-                                prev_token.begin, token.end,
-                                "There must be no space between %s and `,`.", prev_token.type.to_string());
+                        if (tokens.peek(-1, out prev_token)) {
+                            string? before_comma = Utils.Buffer.substring(prev_token.end.pos, token.begin.pos);
+                            if (before_comma != null) {
+                                error(
+                                    prev_token.begin, token.end,
+                                    "There must be no space between %s and `,`.", prev_token.type.to_string());
+                                if (fix_errors && Utils.String.is_whitespace(before_comma)) {
+                                    fix(prev_token.end.pos, token.begin.pos, null);
+                                }
+                            }
                         }
                     }
                 }
