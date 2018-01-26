@@ -41,12 +41,28 @@ public class Linter.WhitespaceRule: Rule {
             case Vala.TokenType.OPEN_BRACE:
                 if (space_before_bracket) {
                     Token? prev_token = null;
+                    string? sep = null;
                     if (tokens.peek(-1, out prev_token)
-                    && prev_token.type != Vala.TokenType.OPEN_BRACE
-                    && Utils.Buffer.substring(prev_token.end.pos, token.begin.pos) != " ") {
-                        error(
-                            prev_token.begin, token.end,
-                            "There must be a single space between %s and `{`.", prev_token.type.to_string());
+                    && (sep = Utils.Buffer.substring(prev_token.end.pos, token.begin.pos)) != " ") {
+                        bool is_ok = false;
+                        switch (prev_token.type) {
+                        case Vala.TokenType.OPEN_BRACE:
+                        case Vala.TokenType.OPEN_PARENS:
+                            is_ok = true;
+                            break;
+                        case Vala.TokenType.COMMA:
+                        case Vala.TokenType.HASH:
+                            is_ok = prev_token.end.pos != token.begin.pos;
+                            break;
+                        }
+                        if (!is_ok) {
+                            error(
+                                prev_token.begin, token.end,
+                                "There must be a single space between %s and `{`.", prev_token.type.to_string());
+                            if (fix_errors && Utils.String.is_whitespace(sep)) {
+                                fix(prev_token.end.pos, token.begin.pos, " ");
+                            }
+                        }
                     }
                 }
                 break;
