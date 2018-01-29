@@ -264,7 +264,7 @@ class Linter.Main {
             return quit();
         }
 
-        Rule[] rules = {new WhitespaceRule(), new NamespaceRule(), new VariableRule()};
+        Rule[] rules = {new IfElseRule(), new WhitespaceRule(), new NamespaceRule(), new VariableRule()};
         var linter = new Linter((owned) rules, config);
         linter.lint(context, new CodeVisitor(dump_tree));
         var fixer = new Fixer();

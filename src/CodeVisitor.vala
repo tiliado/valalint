@@ -359,6 +359,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_if_statement (Vala.IfStatement stmt) {
         open("if");
+        rule.lint_if_statement(stmt);
         stmt.accept_children(this);
         close();
     }
