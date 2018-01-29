@@ -1,4 +1,6 @@
 public class Linter.IfElseRule : Rule {
+    public bool cuddled_else {get; set; default = false;}
+    public bool cuddled_catch {get; set; default = false;}
     public bool if_else_blocks {get; set; default = false;}
     public bool if_else_no_blocks_same_line {get; set; default = false;}
 
@@ -8,8 +10,36 @@ public class Linter.IfElseRule : Rule {
 
     public override void setup(Config config) {
         base.setup(config);
+        cuddled_else = config.get_bool_or(Config.CHECKS, "cuddled_else");
+        cuddled_catch = config.get_bool_or(Config.CHECKS, "cuddled_catch");
         if_else_blocks = config.get_bool_or(Config.CHECKS, "if_else_blocks");
         if_else_no_blocks_same_line = config.get_bool_or(Config.CHECKS, "if_else_no_blocks_same_line");
+    }
+
+    public override void lint_tokens(TokenList tokens) {
+        if (cuddled_else || cuddled_catch) {
+            Token? prev_token = null;
+            Token? token = null;
+            while (tokens.next(out token)) {
+                if (prev_token != null && prev_token.type == Vala.TokenType.CLOSE_BRACE) {
+                    if (cuddled_catch && token.type == Vala.TokenType.CATCH
+                    || cuddled_else && token.type == Vala.TokenType.ELSE) {
+                        string sep = Utils.Buffer.substring(prev_token.end.pos, token.begin.pos);
+                        if (sep != " ") {
+                            error(
+                                prev_token.end, token.begin,
+                                "There must be a single space between %s and %s.",
+                                prev_token.type.to_string(), token.type.to_string());
+                            if (fix_errors && Utils.String.is_whitespace(sep)) {
+                                fix(prev_token.end.pos, token.begin.pos, " ");
+                            }
+                        }
+                    }
+                    break;
+                }
+                prev_token = token;
+            }
+        }
     }
 
     public override void lint_if_statement (Vala.IfStatement stmt) {
