@@ -415,6 +415,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_while_statement (Vala.WhileStatement stmt) {
         open("while");
+        rule.lint_while_statement(stmt);
         stmt.accept_children(this);
         close();
     }
@@ -437,6 +438,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_for_statement (Vala.ForStatement stmt) {
         open("for");
+        rule.lint_for_statement(stmt);
         stmt.accept_children(this);
         close();
     }
@@ -448,6 +450,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      */
     public override void visit_foreach_statement (Vala.ForeachStatement stmt) {
         open("foreach");
+        rule.lint_foreach_statement(stmt);
         stmt.accept_children(this);
         close();
     }

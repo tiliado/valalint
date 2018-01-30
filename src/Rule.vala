@@ -33,9 +33,7 @@ public class Linter.Rule {
 
     public void error(Vala.SourceLocation begin, Vala.SourceLocation end, string message, ...) {
         if (begin.line != end.line) {
-            begin = end;
-            begin.column = 0;
-            begin.pos = end.pos - end.column;
+            begin = Vala.SourceLocation(end.pos - end.column, end.line, 0);
         }
         Vala.Report.error(
             new Vala.SourceReference(current_file, begin, end), message.vprintf(va_list()));

@@ -2,6 +2,7 @@ public class Linter.IfElseRule : Rule {
     public bool cuddled_else {get; set; default = false;}
     public bool cuddled_catch {get; set; default = false;}
     public bool if_else_blocks {get; set; default = false;}
+    public bool loop_blocks {get; set; default = false;}
     public bool if_else_no_blocks_same_line {get; set; default = false;}
 
     public IfElseRule() {
@@ -12,6 +13,7 @@ public class Linter.IfElseRule : Rule {
         base.setup(config);
         cuddled_else = config.get_bool_or(Config.CHECKS, "cuddled_else");
         cuddled_catch = config.get_bool_or(Config.CHECKS, "cuddled_catch");
+        loop_blocks = config.get_bool_or(Config.CHECKS, "loop_blocks");
         if_else_blocks = config.get_bool_or(Config.CHECKS, "if_else_blocks");
         if_else_no_blocks_same_line = config.get_bool_or(Config.CHECKS, "if_else_no_blocks_same_line");
     }
@@ -52,6 +54,24 @@ public class Linter.IfElseRule : Rule {
                 }
             }
             lint_block_required_after_statement("else", stmt.false_statement, {typeof(Vala.IfStatement)});
+        }
+    }
+
+    public override void lint_for_statement (Vala.ForStatement stmt) {
+        if (loop_blocks) {
+            lint_block_required_after_statement("for", stmt.body, null);
+        }
+    }
+
+    public override void lint_foreach_statement (Vala.ForeachStatement stmt) {
+        if (loop_blocks) {
+            lint_block_required_after_statement("foreach", stmt.body, null);
+        }
+    }
+
+    public override void lint_while_statement (Vala.WhileStatement stmt) {
+        if (loop_blocks) {
+            lint_block_required_after_statement("while", stmt.body, null);
         }
     }
 
