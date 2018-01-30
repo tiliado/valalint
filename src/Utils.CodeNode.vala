@@ -23,7 +23,16 @@ public char* find_end_of_stm(char* pos, Vala.Statement? stm) {
             pos = find_end_of_stm(pos, st);
         }
     }
-    return stm.source_reference.end.pos > pos ? stm.source_reference.end.pos : pos;
+    if (stm.source_reference.end.pos > pos) {
+        pos = stm.source_reference.end.pos;
+        if (block_stm != null) {
+            /* block_stm.source_reference.end.pos goes beyond '}'! */
+            while (*(pos - 1) != '}') {
+                pos--;
+            }
+        }
+    }
+    return pos;
 }
 
 } // namespace Linter.Utils.CodeNode
