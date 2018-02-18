@@ -21,6 +21,7 @@ class Linter.Main {
     static string target_glib;
     [CCode (array_length = false, array_null_terminated = true)]
     static string[] checks;
+    static bool no_default_config_file;
     static bool disable_assert;
     static bool experimental;
     static bool experimental_non_null;
@@ -43,6 +44,9 @@ class Linter.Main {
         }, {
             "config", 'C', 0, OptionArg.FILENAME, ref config_file,
             "Configuration file", "PATH"
+        }, {
+            "no-default-config", 0, 0, OptionArg.NONE, ref no_default_config_file,
+            "Don't load default configuration file .valalint.conf.", null
         }, {
             "vapidir", 0, 0, OptionArg.FILENAME_ARRAY, ref vapi_directories,
             "Look for package bindings in DIRECTORY", "DIRECTORY..."
@@ -161,12 +165,17 @@ class Linter.Main {
         context.verbose_mode = verbose_mode;
 
         var config = new Config();
-        try {
-            config.load_from_file(config_file ?? ".valalint.conf", 0);
-        } catch (GLib.Error e) {
-            if (config_file != null || !(e is GLib.FileError.NOENT)) {
-                stderr.printf("Cannot load config file '%s'. %s.\n", config_file, e.message);
-                return 1;
+        if (config_file == null && !no_default_config_file) {
+            config_file = ".valalint.conf";
+        }
+        if (config_file != null) {
+            try {
+                config.load_from_file(config_file, 0);
+            } catch (GLib.Error e) {
+                if (config_file != null || !(e is GLib.FileError.NOENT)) {
+                    stderr.printf("Cannot load config file '%s'. %s.\n", config_file, e.message);
+                    return 1;
+                }
             }
         }
         foreach (unowned string check in checks) {
