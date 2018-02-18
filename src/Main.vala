@@ -165,6 +165,7 @@ class Linter.Main {
         context.verbose_mode = verbose_mode;
 
         var config = new Config();
+        bool explicit_config_file = config_file != null;
         if (config_file == null && !no_default_config_file) {
             config_file = ".valalint.conf";
         }
@@ -172,7 +173,7 @@ class Linter.Main {
             try {
                 config.load_from_file(config_file, 0);
             } catch (GLib.Error e) {
-                if (config_file != null || !(e is GLib.FileError.NOENT)) {
+                if (explicit_config_file || !(e is GLib.FileError.NOENT)) {
                     stderr.printf("Cannot load config file '%s'. %s.\n", config_file, e.message);
                     return 1;
                 }
