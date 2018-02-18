@@ -70,6 +70,3 @@ build/test/test.vala:46.1-46.9: error: Incorrect identation level 2 (0 expected)
 build/test/test.vala:47.1-47.5: error: Incorrect identation level 1 (0 expected).
     } // namespace Test
 ^^^^^
-build/test/test.vala:45.0-45.5: error: There must be a single space between identifier and `{`.
-    {
-^^^^^^
