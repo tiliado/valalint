@@ -240,6 +240,11 @@ public class Linter.WhitespaceRule: Rule {
     private void lint_space_indent_line(
         int line, int expected_level, char* indent_begin, char* indent_end, int extra_spaces=0
     ) {
+        unowned string? indent_begin_str = (string?) indent_begin;
+        if (indent_begin_str != null && indent_begin_str.has_prefix("//~")) {
+            return;
+        }
+
         int indent_level = -1;
         string? indent = null;
         bool have_error = false;
