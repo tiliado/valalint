@@ -1,11 +1,12 @@
 class Linter.Main {
+    [CCode (cname="VALALINT_VERSION")]
+    private extern const string VERSION;
     private const string DEFAULT_COLORS = "error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01";
 
     static string basedir;
     static string directory;
     static string config_file;
     static bool version;
-    static bool api_version;
     static bool dump_tree;
     static bool fix_errors;
     [CCode (array_length = false, array_null_terminated = true)]
@@ -43,9 +44,6 @@ class Linter.Main {
         }, {
             "version", 0, 0, OptionArg.NONE, ref version,
             "Display version number", null
-        }, {
-            "api-version", 0, 0, OptionArg.NONE, ref api_version,
-            "Display API version number", null
         }, {
             "dump-tree", 0, 0, OptionArg.NONE, ref dump_tree,
             "Dump code visitor tree.", null
@@ -218,10 +216,7 @@ class Linter.Main {
         }
 
         if (version) {
-            stdout.printf("Vala %s\n", "VERSION");
-            return 0;
-        } else if (api_version) {
-            stdout.printf("%s\n", "API_VERSION");
+            stdout.printf("Valalint %s\n", VERSION);
             return 0;
         }
 
