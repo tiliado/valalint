@@ -11,25 +11,12 @@ class Linter.Main {
     [CCode (array_length = false, array_null_terminated = true)]
     static string[] sources;
     [CCode (array_length = false, array_null_terminated = true)]
-    static string[] vapi_directories;
-    [CCode (array_length = false, array_null_terminated = true)]
-    static string[] gir_directories;
-    [CCode (array_length = false, array_null_terminated = true)]
-    static string[] metadata_directories;
-    [CCode (array_length = false, array_null_terminated = true)]
-    static string[] packages;
-    static string target_glib;
-    [CCode (array_length = false, array_null_terminated = true)]
     static string[] checks;
     static bool no_default_config_file;
     static bool disable_assert;
     static bool experimental;
     static bool experimental_non_null;
-    static bool gobject_tracing;
     static bool disable_warnings;
-    static string pkg_config_command;
-    [CCode (array_length = false, array_null_terminated = true)]
-    static string[] defines;
     static bool quiet_mode;
     static bool verbose_mode;
     static bool fatal_warnings;
@@ -48,18 +35,6 @@ class Linter.Main {
             "no-default-config", 0, 0, OptionArg.NONE, ref no_default_config_file,
             "Don't load default configuration file .valalint.conf.", null
         }, {
-            "vapidir", 0, 0, OptionArg.FILENAME_ARRAY, ref vapi_directories,
-            "Look for package bindings in DIRECTORY", "DIRECTORY..."
-        }, {
-            "girdir", 0, 0, OptionArg.FILENAME_ARRAY, ref gir_directories,
-            "Look for .gir files in DIRECTORY", "DIRECTORY..."
-        }, {
-            "metadatadir", 0, 0, OptionArg.FILENAME_ARRAY, ref metadata_directories,
-            "Look for GIR .metadata files in DIRECTORY", "DIRECTORY..."
-        }, {
-            "pkg", 0, 0, OptionArg.STRING_ARRAY, ref packages,
-            "Include binding for PACKAGE", "PACKAGE..."
-        }, {
             "basedir", 'b', 0, OptionArg.FILENAME, ref basedir,
             "Base source directory", "DIRECTORY"
         }, {
@@ -75,20 +50,11 @@ class Linter.Main {
             "dump-tree", 0, 0, OptionArg.NONE, ref dump_tree,
             "Dump code visitor tree.", null
         }, {
-            "define", 'D', 0, OptionArg.STRING_ARRAY, ref defines,
-            "Define SYMBOL", "SYMBOL..."
-        }, {
             "enable-experimental", 0, 0, OptionArg.NONE, ref experimental,
             "Enable experimental features", null
         }, {
             "enable-experimental-non-null", 0, 0, OptionArg.NONE, ref experimental_non_null,
             "Enable experimental enhancements for non-null types", null
-        }, {
-            "enable-gobject-tracing", 0, 0, OptionArg.NONE, ref gobject_tracing,
-            "Enable GObject creation tracing", null
-        }, {
-            "pkg-config", 0, 0, OptionArg.STRING, ref pkg_config_command,
-            "Use COMMAND as pkg-config command", "COMMAND"
         }, {
             "quiet", 'q', 0, OptionArg.NONE, ref quiet_mode,
             "Do not print messages to the console", null
@@ -98,9 +64,6 @@ class Linter.Main {
         }, {
             "no-color", 0, 0, OptionArg.NONE, ref disable_diagnostic_colors,
             "Disable colored output", null
-        }, {
-            "target-glib", 0, 0, OptionArg.STRING, ref target_glib,
-            "Target version of glib for code generation", "MAJOR.MINOR"
         }, {
             "", 0, 0, OptionArg.FILENAME_ARRAY, ref sources, null, "FILE..."
         }, {
@@ -159,7 +122,6 @@ class Linter.Main {
         context.assert = !disable_assert;
         context.experimental = experimental;
         context.experimental_non_null = experimental_non_null;
-        context.gobject_tracing = gobject_tracing;
         context.report.enable_warnings = !disable_warnings;
         context.report.set_verbose_errors(!quiet_mode);
         context.verbose_mode = verbose_mode;
@@ -213,52 +175,7 @@ class Linter.Main {
         } else {
             context.directory = context.basedir;
         }
-        context.vapi_directories = vapi_directories;
-        context.gir_directories = gir_directories;
-        context.metadata_directories = metadata_directories;
         context.profile = Vala.Profile.GOBJECT;
-        context.add_define("GOBJECT");
-
-        if (defines != null) {
-            foreach (string define in defines) {
-                context.add_define(define);
-            }
-        }
-
-        for (int i = 2; i <= 36; i += 2) {
-            context.add_define("VALA_0_%d".printf(i));
-        }
-
-        int glib_major = 2;
-        int glib_minor = 32;
-        if (target_glib != null && target_glib.scanf("%d.%d", out glib_major, out glib_minor) != 2) {
-            Vala.Report.error(null, "Invalid format for --target-glib");
-        }
-
-        context.target_glib_major = glib_major;
-        context.target_glib_minor = glib_minor;
-        if (context.target_glib_major != 2) {
-            Vala.Report.error(null, "This version of valac only supports GLib 2");
-        }
-
-        for (int i = 16; i <= glib_minor; i += 2) {
-            context.add_define("GLIB_2_%d".printf(i));
-        }
-
-        /* default packages */
-        context.add_external_package("glib-2.0");
-        context.add_external_package("gobject-2.0");
-
-        if (packages != null) {
-            foreach (string package in packages) {
-                context.add_external_package(package);
-            }
-            packages = null;
-        }
-
-        if (context.report.get_errors() > 0 || (fatal_warnings && context.report.get_warnings() > 0)) {
-            return quit();
-        }
 
         foreach (string source in sources) {
             context.add_source_filename(source, run_output, true);
