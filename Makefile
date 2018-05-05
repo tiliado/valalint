@@ -18,3 +18,6 @@ test: build/valalint-tests build/valalint
 
 install: build/valalint
 	install -Dv build/valalint "$(DESTDIR)$(PREFIX)/bin"
+
+clean:
+	rm -rf build
