@@ -1,4 +1,4 @@
-VERSION = 0.40.0
+VERSION = 0.42.0
 PREFIX ?= /usr/local
 DESTDIR ?=
 SOURCE = $(sort $(wildcard src/*.vala))
