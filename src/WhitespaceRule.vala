@@ -338,6 +338,10 @@ public class Linter.WhitespaceRule: Rule {
                         Vala.SourceLocation(start, i, col1),
                         Vala.SourceLocation(end, i, col2),
                         "Trailing whitespace not allowed.");
+
+                    if (fix_errors) {
+                        fix_line(i, pos, start, end, null);
+                    }
                 }
             }
         }

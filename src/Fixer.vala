@@ -36,12 +36,12 @@ public class Linter.Fixer {
 
         Vala.SourceFile file = fix.file;
         char* content = file.get_mapped_contents();
-        assert(content != null && fix.content == content);
+        assert(content != null);
 
         var buffer = new StringBuilder("");
         char* processed = content;
         for (char* pos = content; pos != null && *pos != 0; pos++) {
-            while (fix != null && pos == fix.begin) {
+            while (fix != null && pos - content == fix.begin) {
                 n_applied_fixes++;
                 if (pos - processed > 0) {
                     buffer.append_len((string) processed, (ssize_t) (pos - processed));
@@ -49,12 +49,12 @@ public class Linter.Fixer {
                 if (fix.replacement != null) {
                     buffer.append(fix.replacement);
                 }
-                processed = fix.end;
+                processed = content + fix.end;
 
                 fix = null;
                 while (fix_iter.next()) {
                     fix = fix_iter.get();
-                    if (file != fix.file || content != fix.content || fix.begin < processed) {
+                    if (file != fix.file || fix.begin < processed - content) {
                         fix = null;
                         n_failed_fixes++;
                     } else {

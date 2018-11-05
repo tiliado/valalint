@@ -2,6 +2,8 @@ public class Linter.Rule {
     protected Vala.SourceFile current_file = null;
     protected Blocks current_blocks = null;
     protected TokenList current_tokens = null;
+    protected char* start_of_file = null;
+    private int[]? line_offsets = null;
     public Vala.List<Fix> fixes = new Vala.ArrayList<Fix>();
     public bool fix_errors = false;
 
@@ -13,6 +15,8 @@ public class Linter.Rule {
     }
 
     public void apply(Vala.SourceFile file, TokenList tokens, Blocks blocks) {
+        start_of_file = file.get_mapped_contents();
+        line_offsets = null;
         current_file = file;
         current_blocks = blocks;
         current_tokens = tokens;
@@ -26,7 +30,49 @@ public class Linter.Rule {
     }
 
     public Fix fix(char* begin, char* end, owned string? replacement) {
-        var fix = new Fix(current_file, begin, end, (owned) replacement);
+        assert(begin >= start_of_file && end >= start_of_file);
+        var fix = new Fix(
+            current_file,
+            (int) (begin - start_of_file),
+            (int) (end - start_of_file),
+            (owned) replacement);
+        fixes.add(fix);
+        return fix;
+    }
+
+    private void calculate_line_offsets() {
+        if (line_offsets == null) {
+            line_offsets = {0};
+            char* start = start_of_file;
+            for (char* pos = start; pos != null && *pos != 0; pos++) {
+                if (*pos == '\n') {
+                    line_offsets += (int) (pos - start + 1);
+                }
+            }
+        }
+    }
+
+    public int get_line_offset(int line) {
+        calculate_line_offsets();
+        return_val_if_fail(line > 0 || line <= line_offsets.length, -1);
+        return line_offsets[line - 1];
+    }
+
+    public Fix? fix_line(int line, char* line_start, char* begin, char* end, owned string? replacement) {
+        int line_offset = get_line_offset(line);
+        assert(line_start != null && line_offset >= 0);
+        assert(begin >= line_start && end >= line_start);
+        char* line_end = line_start;
+        while (line_end != null && *line_end != 0) {
+            line_end++;
+        }
+        assert(begin <= line_end && end <= line_end);
+
+        var fix = new Fix(
+            current_file,
+            line_offset + (int) (begin - line_start),
+            line_offset + (int) (end - line_start),
+            (owned) replacement);
         fixes.add(fix);
         return fix;
     }

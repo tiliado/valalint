@@ -1,13 +1,11 @@
 public class Linter.Fix {
     public Vala.SourceFile file;
-    public char* content;
-    public char* begin;
-    public char* end;
+    public int begin;
+    public int end;
     public string? replacement;
 
-    public Fix(Vala.SourceFile file, char* begin, char* end, owned string? replacement) {
+    public Fix(Vala.SourceFile file, int begin, int end, owned string? replacement) {
         this.file = file;
-        this.content = file.get_mapped_contents();
         this.begin = begin;
         this.end = end;
         this.replacement = (owned) replacement;
