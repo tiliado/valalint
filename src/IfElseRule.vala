@@ -37,7 +37,6 @@ public class Linter.IfElseRule : Rule {
                             }
                         }
                     }
-                    break;
                 }
                 prev_token = token;
             }
