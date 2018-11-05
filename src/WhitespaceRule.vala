@@ -69,7 +69,10 @@ public class Linter.WhitespaceRule: Rule {
             case Vala.TokenType.COMMA:
                 if (!in_template) {
                     if (space_after_comma) {
-                        lint_space_after_token(tokens, token, true);
+                        // FIXME: array[,]
+                        if (*token.end.pos != ']') {
+                            lint_space_after_token(tokens, token, true);
+                        }
                     }
                     if (no_space_before_comma) {
                         Token? prev_token = null;
