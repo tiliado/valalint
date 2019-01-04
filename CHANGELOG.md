@@ -1,6 +1,13 @@
 Valalint Change Log
 ===================
 
+0.44.0 - January 4th, 2019
+--------------------------
+
+- Switch to Valac 0.44.
+- Added auto fix for trailing whitespace.
+- Added exception for `array[,]`.
+
 0.42.0 - October 27th, 2018
 ---------------------------
 
