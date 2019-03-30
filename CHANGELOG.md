@@ -1,6 +1,11 @@
 Valalint Change Log
 ===================
 
+0.46.0 - March 30th, 2019
+-------------------------
+
+- Switch to Valac 0.46 (development version).
+
 0.44.0 - January 4th, 2019
 --------------------------
 

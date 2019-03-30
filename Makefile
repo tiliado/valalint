@@ -1,4 +1,5 @@
-VERSION = 0.44.0
+SERIES = 0.46
+VERSION = $(SERIES).0
 PREFIX ?= /usr/local
 DESTDIR ?=
 SOURCE = $(sort $(wildcard src/*.vala))
@@ -6,7 +7,7 @@ SOURCE = $(sort $(wildcard src/*.vala))
 all: build/valalint test
 
 build/valalint: $(SOURCE)
-	valac --save-temps -d build --pkg libvala-0.44 --pkg gio-2.0 -X '-DVALALINT_VERSION="$(VERSION)"' \
+	valac --save-temps -d build --pkg libvala-$(SERIES) --pkg gio-2.0 -X '-DVALALINT_VERSION="$(VERSION)"' \
 	-X -g3 -o valalint $(SOURCE)
 	build/valalint --dump-tree $(SOURCE)
 
