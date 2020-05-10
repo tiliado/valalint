@@ -1,0 +1,90 @@
+version: 2.1
+
+executors:
+  fedora:
+    docker:
+      - image: fedora:32
+
+commands:
+  install-deps:
+    steps:
+      - run:
+          name: Install Valalint dependencies
+          command: |
+            dnf update -y > /dev/null
+            dnf install -y vala vala-devel make
+  build-vala:
+    parameters:
+      branch:
+        type: string
+        default: "master"
+    steps:
+      - run:
+          name: Install Vala dependencies
+          command: |
+            dnf install -y \
+              autoconf \
+              autoconf-archive \
+              automake \
+              bison \
+              flex \
+              gcc \
+              git \
+              graphviz-devel
+            gcc --version
+            valac --version
+      - run:
+          name: Upgrade Vala
+          working_directory: ~/workdir
+          command: |
+            git clone https://gitlab.gnome.org/GNOME/vala.git -b << parameters.branch >> --depth 500
+            cd vala
+            ./autogen.sh --prefix=/usr
+            make all
+            dnf remove -y --noautoremove vala vala-devel
+            make install
+            valac --version
+  checkout-and-build:
+    steps:
+      - checkout:
+          path: ~/workdir/valalint
+      - run:
+          name: Build
+          working_directory: ~/workdir/valalint
+          command: |
+            valac --version
+            make build/valalint
+
+jobs:
+  build-vala-fedora:
+    executor: fedora
+    working_directory: ~/workdir
+    steps:
+      - install-deps
+      - checkout-and-build
+  build-vala-git-stable:
+    executor: fedora
+    working_directory: ~/workdir
+    steps:
+      - install-deps
+      - build-vala:
+          branch: "0.48"
+      - checkout-and-build
+  build-vala-git-master:
+    executor: fedora
+    working_directory: ~/workdir
+    steps:
+      - install-deps
+      - build-vala
+      - checkout-and-build
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      # Build with Vala as included in Fedora.
+      - build-vala-fedora
+      # Build with latest stable Vala from git.
+      - build-vala-git-stable
+      # Build with development Vala from git master.
+      # - build-vala-git-master
