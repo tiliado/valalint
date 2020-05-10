@@ -173,7 +173,7 @@ class Linter.Main {
         } else {
             context.directory = context.basedir;
         }
-        context.profile = Vala.Profile.GOBJECT;
+        context.set_target_profile(Vala.Profile.GOBJECT);
 
         foreach (string source in sources) {
             context.add_source_filename(source, run_output, true);
