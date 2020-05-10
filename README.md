@@ -9,7 +9,7 @@ Installation
 Dependencies:
 
   - GNU Make
-  - Vala 0.42.x
+  - Vala 0.48.x
   - GLib/GIO
   - GNU diff
 
@@ -50,6 +50,6 @@ loop_blocks = true
 Copyright
 ---------
 
-  - Copyright 2018 Jiří Janoušek
+  - Copyright 2018-2020 Jiří Janoušek
   - Copyright 2008-2012 Jürg Billeter (Scanner.vala)
   - License: [GNU LGPL 2.1+](./LICENSE)
