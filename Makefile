@@ -1,4 +1,4 @@
-SERIES = 0.50
+SERIES = 0.52
 VERSION = $(SERIES).0
 PREFIX ?= /usr/local
 DESTDIR ?=
