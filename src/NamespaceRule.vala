@@ -60,6 +60,8 @@ public class Linter.NamespaceRule : Rule {
                     }
                 }
                 break;
+            default:
+                break;
             }
 
         }
