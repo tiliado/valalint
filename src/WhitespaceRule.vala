@@ -54,6 +54,8 @@ public class Linter.WhitespaceRule: Rule {
                         case Vala.TokenType.HASH:
                             is_ok = prev_token.end.pos != token.begin.pos;
                             break;
+                        default:
+                            break;
                         }
                         if (!is_ok) {
                             error(
@@ -131,6 +133,8 @@ public class Linter.WhitespaceRule: Rule {
                 if (space_after_keyword) {
                     lint_space_after_token(tokens, token);
                 }
+                break;
+            default:
                 break;
             }
         }
@@ -216,6 +220,8 @@ public class Linter.WhitespaceRule: Rule {
                     }
                 }
                 break;
+            default:
+                break;
             }
             if (line != last_line) {
                 switch (token.type) {
@@ -227,7 +233,8 @@ public class Linter.WhitespaceRule: Rule {
                 case Vala.TokenType.OPEN_PARENS:
                     indentation_shift--;
                     break;
-
+                default:
+                    break;
                 }
                 char* indent_end = token.begin.pos;
                 char* indent_begin = Utils.Buffer.skip_whitespace_backwards(indent_end, token.begin.column - 1);

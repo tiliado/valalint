@@ -22,6 +22,8 @@ public class Linter.Blocks {
                     current_block = null;
                 }
                 break;
+            default:
+                break;
             }
         }
     }
