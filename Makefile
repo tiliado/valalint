@@ -18,7 +18,7 @@ test: build/valalint-tests build/valalint
 	build/valalint-tests --verbose
 
 install: build/valalint
-	install -Dv build/valalint "$(DESTDIR)$(PREFIX)/bin"
+	install -Dv build/valalint "$(DESTDIR)$(PREFIX)/bin/valalint"
 
 clean:
 	rm -rf build
