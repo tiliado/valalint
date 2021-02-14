@@ -402,7 +402,7 @@ public class Linter.CodeVisitor : Vala.CodeVisitor {
      *
      * @param stmt a loop
      */
-    public override void visit_loop (Vala.Loop stmt) {
+    public override void visit_loop_statement (Vala.LoopStatement stmt) {
         open("loop");
         stmt.accept_children(this);
         close();
