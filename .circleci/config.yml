@@ -38,6 +38,8 @@ commands:
           name: Upgrade Vala
           working_directory: ~/workdir
           command: |
+            export SHELL=/usr/bin/bash
+            export CONFIG_SHELL=/usr/bin/bash
             git clone https://gitlab.gnome.org/GNOME/vala.git -b << parameters.branch >> --depth 500
             cd vala
             ./autogen.sh --prefix=/usr
