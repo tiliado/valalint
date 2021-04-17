@@ -83,8 +83,8 @@ workflows:
   build:
     jobs:
       # Build with Vala as included in Fedora.
-      # - build-vala-fedora
+      - build-vala-fedora
       # Build with latest stable Vala from git.
-      # - build-vala-git-stable
+      - build-vala-git-stable
       # Build with development Vala from git master.
-      - build-vala-git-master
+      # - build-vala-git-master
