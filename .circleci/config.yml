@@ -3,7 +3,8 @@ version: 2.1
 executors:
   fedora:
     docker:
-      - image: fedora:latest
+      # Fedora 35 does have Vala 0.52
+      - image: fedora:35
 
 commands:
   install-deps:
