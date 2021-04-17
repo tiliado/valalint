@@ -9,7 +9,7 @@ Installation
 Dependencies:
 
   - GNU Make
-  - Vala 0.52.x
+  - Vala 0.54.x
   - GLib/GIO
   - GNU diff
 
